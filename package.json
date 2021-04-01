@@ -5,12 +5,12 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js",
+    "dev": "env-cmd nodemon app.js",
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "create-table": "node scripts/create-tables.js",
-    "drop-table": "node scripts/drop-tables.js",
-    "sync-db": "node scripts/sync-remote-db.js"
+    "create-table": "env-cmd node scripts/create-tables.js",
+    "drop-table": "env-cmd node scripts/drop-tables.js",
+    "sync-db": "env-cmd node scripts/sync-remote-db.js"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +31,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "env-cmd": "^10.1.0",
     "nodemon": "^2.0.7",
     "standard": "^16.0.3"
   },
