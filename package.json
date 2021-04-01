@@ -35,6 +35,6 @@
     "standard": "^16.0.3"
   },
   "engines": {
-    "node": "14.8.x"
+    "node": "14"
   }
 }
