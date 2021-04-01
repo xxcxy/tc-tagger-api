@@ -69,9 +69,6 @@ IS_LOCAL_DB=true npm run create-table
 IS_LOCAL_DB=true npm start
 ```
 
-## Verification
-Refer to the verification document `Verification.md`
-
 ## Notes
 - db schema updated: _id to id, LastRefreshedAt to lastRefreshedAt, output_tag to outputTags, add tags to store challenge original tags.
 
