@@ -10,8 +10,12 @@ module.exports = {
     DYNAMODB_READ_CAPACITY_UNITS: process.env.DYNAMODB_READ_CAPACITY_UNITS || 10,
     DYNAMODB_WRITE_CAPACITY_UNITS: process.env.DYNAMODB_WRITE_CAPACITY_UNITS || 5,
     IS_LOCAL_DB: process.env.IS_LOCAL_DB ? process.env.IS_LOCAL_DB === 'true' : false,
-    // Below configuration is required if IS_LOCAL_DB is true
-    DYNAMODB_URL: process.env.AWS_DYNAMODB_URL || 'http://localhost:8000'
+    // On the real server we are using policies to access dynamo DB instead of AWS key.
+    // But for local deployment we still need dummy values, which would be only use if `IS_LOCAL_DB=true`
+    AWS_ACCESS_KEY_ID: 'local-dummy',
+    AWS_SECRET_ACCESS_KEY: 'local-dummy',
+    // We also have to provide URL if `IS_LOCAL_DB=true`
+    DYNAMODB_URL: process.env.AWS_DYNAMODB_URL || 'http://localhost:8000',
   },
 
   DB_COLLECTION_CHALLENGES: process.env.ENV_SOLUTION_DB_COLLECTION_CHALLENGES || 'ChallengeTags',
