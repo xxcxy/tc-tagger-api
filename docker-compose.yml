@@ -1,0 +1,19 @@
+version: '3'
+services:
+  tc-tagger-api:
+      container_name: tc-tagger-api
+      build:
+        context: .
+        dockerfile: ./docker/Dockerfile
+      environment:
+        - DYNAMODB_URL=http://dynamodb:8000
+        - IS_LOCAL_DB=true
+      ports:
+        - '3000:3000'
+      depends_on:
+        - dynamodb
+      restart: always
+  dynamodb:
+    image: amazon/dynamodb-local
+    ports:
+      - "8000:8000"

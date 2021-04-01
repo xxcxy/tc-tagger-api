@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "c6e2d4b2-57b8-454d-a3f5-3368df7b805c",
+		"name": "tc_tagger_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "original response",
+			"item": [
+				{
+					"name": "challenge_tags - filter on challenge id and skill (with pagination)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server URL}}?page=1&status=open&perPage=10",
+							"host": [
+								"{{server URL}}"
+							],
+							"query": [
+								{
+									"key": "challenge_id",
+									"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "status",
+									"value": "open"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								},
+								{
+									"key": "tag",
+									"value": "Chatbot",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "Autopilot",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-open-challenge-tags - challenge ids in the body",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer ${{server token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"challengeId\": [\n        \"50c0fd0a-d6ce-405a-9433-a94d0e6ded23\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server URL}}/tags",
+							"host": [
+								"{{server URL}}"
+							],
+							"path": [
+								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-challenge-tags - missing challenge ids",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{server URL}}/tags",
+							"host": [
+								"{{server URL}}"
+							],
+							"path": [
+								"tags"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base URL}}/health",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "challenge_tags - filter on challenge id and skill (with pagination)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base URL}}/challenge-tags?page=1&status=open&perPage=10",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"challenge-tags"
+					],
+					"query": [
+						{
+							"key": "challengeId",
+							"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "status",
+							"value": "open"
+						},
+						{
+							"key": "perPage",
+							"value": "10"
+						},
+						{
+							"key": "tag",
+							"value": "Chatbot",
+							"disabled": true
+						},
+						{
+							"key": "name",
+							"value": "Autopilot",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update-open-challenge-tags - challenge ids in the body",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"challengeId\": [\n        \"50c0fd0a-d6ce-405a-9433-a94d0e6ded23\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base URL}}/challenge-tags",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"challenge-tags"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update-challenge-tags - missing challenge ids",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base URL}}/challenge-tags",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"challenge-tags"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
