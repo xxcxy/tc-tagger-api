@@ -16,7 +16,7 @@ module.exports = {
     DYNAMODB_URL: process.env.AWS_DYNAMODB_URL || 'http://localhost:8000'
   },
 
-  DB_COLLECTION_CHALLENGES: process.env.ENV_SOLUTION_DB_COLLECTION_CHALLENGES || 'challenge_details',
+  DB_COLLECTION_CHALLENGES: process.env.ENV_SOLUTION_DB_COLLECTION_CHALLENGES || 'challenge_tags',
   TAGGING_EMSI_TYPE: process.env.ENV_TAGGING_TAGGING_EMSI_TYPE || 'internal_no_refresh',
   ENABLE_CUSTOM_TAGGING: process.env.ENV_TAGGING_ENABLE_CUSTOM_TAGGING || 'false',
   UPDATE_LOCAL_BEFORE_TAGGING: process.env.ENV_TAGGING_UPDATE_LOCAL_BEFORE_TAGGING || 'false',
