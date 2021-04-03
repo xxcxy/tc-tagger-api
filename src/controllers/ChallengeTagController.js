@@ -20,7 +20,7 @@ async function updateChallengeTag (req, res) {
  * @param res the response
  */
 async function searchChallengeTag (req, res) {
-  const result = await service.searchChallengeTag(req.query)
+  const result = await service.searchChallengeTag(Object.assign({}, req.query, req.body))
   logger.info(`get challenge tags => ${result.result.length}`)
   helper.setResHeaders(req, res, result)
   res.send(result.result)
