@@ -15,7 +15,7 @@ module.exports = {
     AWS_ACCESS_KEY_ID: 'local-dummy',
     AWS_SECRET_ACCESS_KEY: 'local-dummy',
     // We also have to provide URL if `IS_LOCAL_DB=true`
-    DYNAMODB_URL: process.env.AWS_DYNAMODB_URL || 'http://localhost:8000',
+    DYNAMODB_URL: process.env.AWS_DYNAMODB_URL || 'http://localhost:8000'
   },
 
   DB_COLLECTION_CHALLENGES: process.env.ENV_SOLUTION_DB_COLLECTION_CHALLENGES || 'challenge_tags',
@@ -27,5 +27,8 @@ module.exports = {
 
   CHALLENGE_BASE_URL: process.env.ENV_CHALLENGE_BASE_URL || 'https://api.topcoder-dev.com',
 
-  TAGGING_API_BASE_URL: process.env.ENV_TAGGING_API_BASE_URL || 'https://api.topcoder-dev.com'
+  TAGGING_API_BASE_URL: process.env.ENV_TAGGING_API_BASE_URL || 'https://api.topcoder-dev.com',
+
+  M2M_AUDIT_USER_ID: process.env.M2M_AUDIT_USER_ID || -1,
+  M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'TopcoderService'
 }

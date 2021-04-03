@@ -9,6 +9,7 @@ module.exports = {
       controller: 'ChallengeTagController',
       method: 'updateChallengeTag',
       auth: 'jwt',
+      access: [constants.UserRoles.Admin],
       scopes: [constants.Scopes.WRITE_CHALLENGES, constants.Scopes.ALL_CHALLENGES]
     },
     get: {

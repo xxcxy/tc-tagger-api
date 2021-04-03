@@ -43,6 +43,38 @@ function autoWrapExpress (obj) {
 }
 
 /**
+ * Checks if the source matches the term.
+ *
+ * @param {Array} source the array in which to search for the term
+ * @param {Array | String} term the term to search
+ */
+function checkIfExists (source, term) {
+  let terms
+
+  if (!_.isArray(source)) {
+    throw new Error('Source argument should be an array')
+  }
+
+  source = source.map(s => s.toLowerCase())
+
+  if (_.isString(term)) {
+    terms = term.split(' ')
+  } else if (_.isArray(term)) {
+    terms = term.map(t => t.toLowerCase())
+  } else {
+    throw new Error('Term argument should be either a string or an array')
+  }
+
+  for (let i = 0; i < terms.length; i++) {
+    if (source.includes(terms[i])) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/**
  * Get link for a given page.
  * @param {Object} req the HTTP request
  * @param {Number} page the page number
@@ -281,6 +313,7 @@ async function assignOutputTag (challengeList) {
 
 module.exports = {
   autoWrapExpress,
+  checkIfExists,
   setResHeaders,
   getChallenge,
   getSpecificPageChallenge,
