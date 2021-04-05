@@ -10,6 +10,19 @@ const logger = require('./logger')
 const models = require('../models')
 const { BATCH_MAX_COUNT } = require('../../app-constants')
 
+const m2mAuth = require('tc-core-library-js').auth.m2m
+
+const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'AUTH0_PROXY_SERVER_URL']))
+
+/**
+ * Get M2M token
+ *
+ * @returns {Promise<string>} token
+ */
+async function getM2MToken () {
+  return await m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+}
+
 /**
  * Wrap async function to standard express function
  * @param {Function} fn the async function
@@ -122,11 +135,19 @@ function setResHeaders (req, res, result) {
  * @returns {Object} the challenge
  */
 async function getChallenge (challengeId) {
+  const token = await getM2MToken()
   try {
-    const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges/${challengeId}`)
+    const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges/${challengeId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
     return adaptChallenge(res.data)
   } catch (e) {
-    logger.error('TopCoder API unavailable!')
+    logger.logFullError(e, {
+      component: 'helper',
+      context: 'getChallenge'
+    })
   }
 }
 
@@ -312,6 +333,7 @@ async function assignOutputTag (challengeList) {
 }
 
 module.exports = {
+  getM2MToken,
   autoWrapExpress,
   checkIfExists,
   setResHeaders,
