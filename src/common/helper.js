@@ -268,7 +268,7 @@ async function getTags (type, description, length) {
   if (length) {
     requestBody.length = length
   }
-  const res = await axios.post(`${config.TAGGING_API_BASE_URL}/v5/contest-tagging/${type}`, requestBody, { validateStatus: null })
+  const res = await axios.post(`${config.TAGGING_API_BASE_URL}/v5/contest-tagging/${type}`, querystring.stringify(requestBody), { validateStatus: null })
   if (res.status === 200) {
     return res.data
   } else {
