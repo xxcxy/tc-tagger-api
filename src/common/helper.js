@@ -266,10 +266,12 @@ async function getChallengeTag (challenge) {
     const emsiType = _.toLower(config.TAGGING_EMSI_TYPE)
     if (_.includes(['external', 'internal_refresh', 'internal_no_refresh'], emsiType)) {
       const tagArr = await getTags(`emsi/${emsiType}`, challenge.description, emsiType === 'external' ? parseInt(config.TEXT_LENGTH) : null)
+      logger.debug(`tags for challenge id "${challenge.id}": ${JSON.stringify(tagArr)}`)
       tags.push(...tagArr)
     }
     if (_.toLower(config.ENABLE_CUSTOM_TAGGING) === 'true') {
       const tagArr = await getTags('custom', challenge.description)
+      logger.debug(`tags for challenge id "${challenge.id}": ${JSON.stringify(tagArr)}`)
       tags.push(...tagArr)
     }
     const outputTags = _.uniqBy(tags, v => _.toLower(v.tag))
