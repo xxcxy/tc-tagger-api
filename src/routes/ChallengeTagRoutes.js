@@ -14,7 +14,10 @@ module.exports = {
     },
     get: {
       controller: 'ChallengeTagController',
-      method: 'searchChallengeTag'
+      method: 'searchChallengeTag',
+      auth: 'jwt',
+      access: [constants.UserRoles.Admin],
+      scopes: [constants.Scopes.READ_CHALLENGES, constants.Scopes.ALL_CHALLENGES]
     }
   }
 }

@@ -10,6 +10,7 @@ const UserRoles = {
 }
 
 const Scopes = {
+  READ_CHALLENGES: 'read:challenges',
   WRITE_CHALLENGES: 'write:challenges',
   ALL_CHALLENGES: 'all:challenges'
 }
