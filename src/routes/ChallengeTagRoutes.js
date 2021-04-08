@@ -19,5 +19,11 @@ module.exports = {
       access: [constants.UserRoles.Admin],
       scopes: [constants.Scopes.READ_CHALLENGES, constants.Scopes.ALL_CHALLENGES]
     }
+  },
+  '/challenge-tags/stream-demo': {
+    get: {
+      controller: 'ChallengeTagController',
+      method: 'streamDemo'
+    }
   }
 }
