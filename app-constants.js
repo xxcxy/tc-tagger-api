@@ -2,7 +2,7 @@
  * App constants
  */
 
-const BATCH_MAX_COUNT = 25
+const BATCH_MAX_COUNT = 100
 
 const UserRoles = {
   Admin: 'administrator',
