@@ -4,7 +4,7 @@ const path = require('path')
 const logger = require('./common/logger')
 
 Joi.page = () => Joi.number().integer().min(1).default(1)
-Joi.perPage = () => Joi.number().integer().min(1).default(20)
+Joi.perPage = () => Joi.number().integer().min(1).default(1000)
 
 function buildServices (dir) {
   const files = fs.readdirSync(dir)

@@ -10,6 +10,19 @@ const logger = require('./logger')
 const models = require('../models')
 const { BATCH_MAX_COUNT } = require('../../app-constants')
 
+const m2mAuth = require('tc-core-library-js').auth.m2m
+
+const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'AUTH0_PROXY_SERVER_URL']))
+
+/**
+ * Get M2M token
+ *
+ * @returns {Promise<string>} token
+ */
+async function getM2MToken () {
+  return await m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+}
+
 /**
  * Wrap async function to standard express function
  * @param {Function} fn the async function
@@ -40,6 +53,38 @@ function autoWrapExpress (obj) {
     obj[key] = autoWrapExpress(value)
   })
   return obj
+}
+
+/**
+ * Checks if the source matches the term.
+ *
+ * @param {Array} source the array in which to search for the term
+ * @param {Array | String} term the term to search
+ */
+function checkIfExists (source, term) {
+  let terms
+
+  if (!_.isArray(source)) {
+    throw new Error('Source argument should be an array')
+  }
+
+  source = source.map(s => s.toLowerCase())
+
+  if (_.isString(term)) {
+    terms = term.split(' ')
+  } else if (_.isArray(term)) {
+    terms = term.map(t => t.toLowerCase())
+  } else {
+    throw new Error('Term argument should be either a string or an array')
+  }
+
+  for (let i = 0; i < terms.length; i++) {
+    if (source.includes(terms[i])) {
+      return true
+    }
+  }
+
+  return false
 }
 
 /**
@@ -90,11 +135,19 @@ function setResHeaders (req, res, result) {
  * @returns {Object} the challenge
  */
 async function getChallenge (challengeId) {
+  const token = await getM2MToken()
   try {
-    const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges/${challengeId}`)
+    const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges/${challengeId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
     return adaptChallenge(res.data)
   } catch (e) {
-    logger.error('TopCoder API unavailable!')
+    logger.logFullError(e, {
+      component: 'helper',
+      context: 'getChallenge'
+    })
   }
 }
 
@@ -213,10 +266,12 @@ async function getChallengeTag (challenge) {
     const emsiType = _.toLower(config.TAGGING_EMSI_TYPE)
     if (_.includes(['external', 'internal_refresh', 'internal_no_refresh'], emsiType)) {
       const tagArr = await getTags(`emsi/${emsiType}`, challenge.description, emsiType === 'external' ? parseInt(config.TEXT_LENGTH) : null)
+      logger.debug(`tags for challenge id "${challenge.id}": ${JSON.stringify(tagArr)}`)
       tags.push(...tagArr)
     }
     if (_.toLower(config.ENABLE_CUSTOM_TAGGING) === 'true') {
       const tagArr = await getTags('custom', challenge.description)
+      logger.debug(`tags for challenge id "${challenge.id}": ${JSON.stringify(tagArr)}`)
       tags.push(...tagArr)
     }
     const outputTags = _.uniqBy(tags, v => _.toLower(v.tag))
@@ -344,7 +399,9 @@ function filterMemberSkillHistory (memberSkillsHistoryList, startDate, endDate, 
 }
 
 module.exports = {
+  getM2MToken,
   autoWrapExpress,
+  checkIfExists,
   setResHeaders,
   getChallenge,
   getSpecificPageChallenge,

@@ -11,38 +11,6 @@ const routes = require('./src/routes')
 const authenticator = require('tc-core-library-js').middleware.jwtAuthenticator
 
 /**
- * Checks if the source matches the term.
- *
- * @param {Array} source the array in which to search for the term
- * @param {Array | String} term the term to search
- */
-function checkIfExists (source, term) {
-  let terms
-
-  if (!_.isArray(source)) {
-    throw new Error('Source argument should be an array')
-  }
-
-  source = source.map(s => s.toLowerCase())
-
-  if (_.isString(term)) {
-    terms = term.split(' ')
-  } else if (_.isArray(term)) {
-    terms = term.map(t => t.toLowerCase())
-  } else {
-    throw new Error('Term argument should be either a string or an array')
-  }
-
-  for (let i = 0; i < terms.length; i++) {
-    if (source.includes(terms[i])) {
-      return true
-    }
-  }
-
-  return false
-}
-
-/**
  * Configure all routes for express app
  * @param app the express app
  */
@@ -69,23 +37,22 @@ module.exports = (app) => {
         })
 
         actions.push((req, res, next) => {
-          if (!req.authUser) {
-            return next(new errors.UnauthorizedError('Action is not allowed for invalid token'))
-          }
-
-          if (req.authUser.scopes) {
+          if (req.authUser.isMachine) {
             // M2M
-            if (def.scopes && !checkIfExists(def.scopes, req.authUser.scopes)) {
-              res.forbidden = true
+            if (!req.authUser.scopes || !helper.checkIfExists(def.scopes, req.authUser.scopes)) {
+              next(new errors.ForbiddenError('You are not allowed to perform this action!'))
+            } else {
+              req.authUser.userId = config.M2M_AUDIT_USER_ID
+              req.authUser.handle = config.M2M_AUDIT_HANDLE
+              next()
+            }
+          } else {
+            // User auth
+            if (def.access && !helper.checkIfExists(_.map(def.access, a => a.toLowerCase()), _.map(req.authUser.roles, r => r.toLowerCase()))) {
               next(new errors.ForbiddenError('You are not allowed to perform this action!'))
             } else {
               next()
             }
-          } else if ((_.isArray(def.access) && def.access.length > 0) ||
-            (_.isArray(def.scopes) && def.scopes.length > 0)) {
-            next(new errors.UnauthorizedError('You are not authorized to perform this action'))
-          } else {
-            next()
           }
         })
       }
