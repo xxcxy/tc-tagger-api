@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c6e2d4b2-57b8-454d-a3f5-3368df7b805c",
+		"_postman_id": "d01d2d7e-0ab0-4ea7-a8d3-c88d843d4264",
 		"name": "tc_tagger_api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -14,9 +14,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{server URL}}?page=1&status=open&perPage=10",
+							"raw": "{{server URL}}/challenge-tags?page=1&status=open&perPage=10",
 							"host": [
 								"{{server URL}}"
+							],
+							"path": [
+								"challenge-tags"
 							],
 							"query": [
 								{
@@ -75,11 +78,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{server URL}}/tags",
+							"raw": "{{server URL}}/challenge-tags/tags",
 							"host": [
 								"{{server URL}}"
 							],
 							"path": [
+								"challenge-tags",
 								"tags"
 							]
 						}
@@ -98,12 +102,110 @@
 							}
 						],
 						"url": {
-							"raw": "{{server URL}}/tags",
+							"raw": "{{server URL}}/challenge-tags/tags",
 							"host": [
 								"{{server URL}}"
 							],
 							"path": [
+								"challenge-tags",
 								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-member-skills",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server URL}}/member-tag-profile/get_processed_member_profile?member=TonyJ,lazybaer&start_date=2020-02-22T17:45:13.000Z&end_date=2021-12-22T17:45:13.000Z&skill=Metadata,Design Theory",
+							"host": [
+								"{{server URL}}"
+							],
+							"path": [
+								"member-tag-profile",
+								"get_processed_member_profile"
+							],
+							"query": [
+								{
+									"key": "member",
+									"value": "TonyJ,lazybaer"
+								},
+								{
+									"key": "start_date",
+									"value": "2020-02-22T17:45:13.000Z"
+								},
+								{
+									"key": "end_date",
+									"value": "2021-12-22T17:45:13.000Z"
+								},
+								{
+									"key": "skill",
+									"value": "Metadata,Design Theory"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-member-profiles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server URL}}/member-tag-profile/get_member_profile?member=TonyJ,lazybaer&start_date=2020-02-22T17:45:13.000Z&end_date=2021-12-22T17:45:13.000Z&skill=Metadata,Design Theory",
+							"host": [
+								"{{server URL}}"
+							],
+							"path": [
+								"member-tag-profile",
+								"get_member_profile"
+							],
+							"query": [
+								{
+									"key": "member",
+									"value": "TonyJ,lazybaer"
+								},
+								{
+									"key": "start_date",
+									"value": "2020-02-22T17:45:13.000Z"
+								},
+								{
+									"key": "end_date",
+									"value": "2021-12-22T17:45:13.000Z"
+								},
+								{
+									"key": "skill",
+									"value": "Metadata,Design Theory"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-member-profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{server token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{server URL}}/member-tag-profile/update_member_profile/6008631e-48e5-45d7-8025-2758374a7d9d",
+							"host": [
+								"{{server URL}}"
+							],
+							"path": [
+								"member-tag-profile",
+								"update_member_profile",
+								"6008631e-48e5-45d7-8025-2758374a7d9d"
 							]
 						}
 					},
@@ -134,7 +236,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base URL}}/challenge-tags?page=1&status=open&perPage=10",
+					"raw": "{{base URL}}/challenge-tags?challengeId=6b4de0f4-6815-49e0-9009-1f34ec39252c,8b2f4f6c-1530-4065-a3cc-9c64c67b81f8&page=1&perPage=10",
 					"host": [
 						"{{base URL}}"
 					],
@@ -144,8 +246,7 @@
 					"query": [
 						{
 							"key": "challengeId",
-							"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
-							"disabled": true
+							"value": "6b4de0f4-6815-49e0-9009-1f34ec39252c,8b2f4f6c-1530-4065-a3cc-9c64c67b81f8"
 						},
 						{
 							"key": "page",
@@ -153,7 +254,8 @@
 						},
 						{
 							"key": "status",
-							"value": "open"
+							"value": "open",
+							"disabled": true
 						},
 						{
 							"key": "perPage",
@@ -190,7 +292,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"challengeId\": [\n        \"50c0fd0a-d6ce-405a-9433-a94d0e6ded23\"\n    ]\n}",
+					"raw": "{\n    \"challengeId\": [\n        \"6b4de0f4-6815-49e0-9009-1f34ec39252c\",\"8b2f4f6c-1530-4065-a3cc-9c64c67b81f8\"\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -227,6 +329,167 @@
 					],
 					"path": [
 						"challenge-tags"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-member-skills",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base URL}}/member-skills?handles=TonyJ,ritesh_cs&page=1&perPage=10&skill=Design Theory,Hooking,Instant Messaging&startDate=2020-02-22T17:45:13.000Z&endDate=2021-12-22T17:45:13.000Z",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"member-skills"
+					],
+					"query": [
+						{
+							"key": "handles",
+							"value": "TonyJ,ritesh_cs"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "perPage",
+							"value": "10"
+						},
+						{
+							"key": "skill",
+							"value": "Design Theory,Hooking,Instant Messaging"
+						},
+						{
+							"key": "startDate",
+							"value": "2020-02-22T17:45:13.000Z"
+						},
+						{
+							"key": "endDate",
+							"value": "2021-12-22T17:45:13.000Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-member-profiles",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base URL}}/member-profiles?handles=tester1234,TCConManager&perPage=10&skill=Design Theory,Hooking,Instant Messaging&startDate=2020-02-22T17:45:13.000Z&endDate=2021-12-22T17:45:13.000Z&page=1",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"member-profiles"
+					],
+					"query": [
+						{
+							"key": "handles",
+							"value": "tester1234,TCConManager"
+						},
+						{
+							"key": "perPage",
+							"value": "10"
+						},
+						{
+							"key": "skill",
+							"value": "Design Theory,Hooking,Instant Messaging"
+						},
+						{
+							"key": "startDate",
+							"value": "2020-02-22T17:45:13.000Z"
+						},
+						{
+							"key": "endDate",
+							"value": "2021-12-22T17:45:13.000Z"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update-member-profiles",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base URL}}/member-profiles?challengeId=6008631e-48e5-45d7-8025-2758374a7d9d",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"member-profiles"
+					],
+					"query": [
+						{
+							"key": "challengeId",
+							"value": "6008631e-48e5-45d7-8025-2758374a7d9d"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update-member-profiles - missing challenge id",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base URL}}/member-profiles",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"member-profiles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update-member-profiles - missing token",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{base URL}}/member-profiles?challengeId=6008631e-48e5-45d7-8025-2758374a7d9d",
+					"host": [
+						"{{base URL}}"
+					],
+					"path": [
+						"member-profiles"
+					],
+					"query": [
+						{
+							"key": "challengeId",
+							"value": "6008631e-48e5-45d7-8025-2758374a7d9d"
+						}
 					]
 				}
 			},

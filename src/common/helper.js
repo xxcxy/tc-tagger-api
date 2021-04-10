@@ -105,8 +105,8 @@ async function getChallenge (challengeId) {
  */
 function adaptChallenge (data) {
   const challenge = _.pick(data, ['id', 'name', 'track', 'description', 'tags'])
-  challenge.startDate = Date.parse(data.startDate)
-  challenge.endDate = Date.parse(data.endDate)
+  challenge.startDate = new Date(data.startDate)
+  challenge.endDate = new Date(data.endDate)
   challenge.winners = _.map(data.winners, w => ({ handle: w.handle, placement: _.toString(w.placement), userId: _.toString(w.userId) }))
   challenge.lastRefreshedAt = new Date()
   challenge.appealsEndDate = getAppealsEndDate(data)
@@ -176,11 +176,11 @@ async function getAllPageChallenge (criteria) {
  * @returns {Date} the appealsEndDate
  */
 function getAppealsEndDate (challenge) {
-  const maxDate = _.max(_.map(challenge.phases, p => Date.parse(p.actualEndDate)))
+  const maxDate = _.max(_.map(challenge.phases, p => new Date(p.actualEndDate)))
   if (maxDate) {
     return maxDate
   }
-  return Date.parse(challenge.updated)
+  return new Date(challenge.updated)
 }
 
 /**
@@ -236,7 +236,7 @@ async function getTags (type, description, length) {
   if (length) {
     requestBody.length = length
   }
-  const res = await axios.post(`${config.TAGGING_API_BASE_URL}/v5/contest-tagging/${type}`, requestBody, { validateStatus: null })
+  const res = await axios.post(`${config.TAGGING_API_BASE_URL}/v5/contest-tagging/${type}`, querystring.stringify(requestBody), { validateStatus: null })
   if (res.status === 200) {
     return res.data
   } else {
@@ -279,6 +279,70 @@ async function assignOutputTag (challengeList) {
   return _.map(challengeList, c => ({ ..._.omit(c, 'lastRefreshedAt', 'description'), outputTags: _.get(tags, c.id, []) }))
 }
 
+/**
+ * Get member skills history from db
+ * @param {String} handles The handles
+ * @returns {Array} the array of member skills history
+ */
+async function getMemberSkillsHistory (handles) {
+  if (handles) {
+    const result = []
+    for (const ids of _.chunk(handles.split(','), BATCH_MAX_COUNT)) {
+      const items = await models.MemberSkillsHistory.batchGet(ids)
+      result.push(...items)
+    }
+    return result
+  } else {
+    return await models.MemberSkillsHistory.scan().all().exec()
+  }
+}
+
+/**
+ * Check if the history match the criteria start date and end date
+ * @param {Object} history the skills history
+ * @param {Date} startDate the criteria start date
+ * @param {Date} endDate the criteria end date
+ * @returns {Boolean}
+ */
+function matchHistory (history, startDate, endDate) {
+  if (startDate && startDate > new Date(history.Timestamp)) {
+    return false
+  }
+  if (endDate && endDate < new Date(history.Timestamp)) {
+    return false
+  }
+  return true
+}
+
+/**
+ * Check if the history math the criteria skill
+ * @param {Object} history the skills history
+ * @param {String} skill the skills
+ * @returns {Boolean}
+ */
+function matchHistorySkill (history, skill) {
+  if (!skill) {
+    return true
+  }
+  return _.some(_.split(skill, ','), sk => _.some(history, h => _.some(h.tags, t => t.tag === sk)))
+}
+
+/**
+ *
+ * @param {Array} memberSkillsHistoryList the member skills history array
+ * @param {Date} startDate the start date
+ * @param {Date} endDate the end date
+ * @param {String} skill the skill
+ * @returns matched array of member skills history
+ */
+function filterMemberSkillHistory (memberSkillsHistoryList, startDate, endDate, skill) {
+  const result = _.map(memberSkillsHistoryList, msh => ({
+    handle: msh.handle,
+    history: _.filter(msh.history, h => matchHistory(h, startDate, endDate))
+  }))
+  return _.filter(result, msh => msh.handle !== '1' && matchHistorySkill(msh.history, skill))
+}
+
 module.exports = {
   autoWrapExpress,
   setResHeaders,
@@ -288,5 +352,7 @@ module.exports = {
   getChallengeFromDb,
   getChallengeTag,
   checkTaggingService,
-  assignOutputTag
+  assignOutputTag,
+  getMemberSkillsHistory,
+  filterMemberSkillHistory
 }

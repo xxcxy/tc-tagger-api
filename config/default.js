@@ -15,7 +15,7 @@ module.exports = {
     AWS_ACCESS_KEY_ID: 'local-dummy',
     AWS_SECRET_ACCESS_KEY: 'local-dummy',
     // We also have to provide URL if `IS_LOCAL_DB=true`
-    DYNAMODB_URL: process.env.AWS_DYNAMODB_URL || 'http://localhost:8000',
+    DYNAMODB_URL: process.env.AWS_DYNAMODB_URL || 'http://localhost:8000'
   },
 
   DB_COLLECTION_CHALLENGES: process.env.ENV_SOLUTION_DB_COLLECTION_CHALLENGES || 'ChallengeTags',
@@ -24,6 +24,10 @@ module.exports = {
   UPDATE_LOCAL_BEFORE_TAGGING: process.env.ENV_TAGGING_UPDATE_LOCAL_BEFORE_TAGGING || 'false',
   EXTRACT_CONFIDENCE: process.env.ENV_TAGGING_EXTRACT_CONFIDENCE || 'false',
   TEXT_LENGTH: process.env.ENV_TAGGING_TEXT_LENGTH || 300,
+  HALF_LIFE_DAYS: process.env.HALF_LIFE_DAYS || 1000,
+  SKIP_SKILLS_PATH: process.env.SKIP_SKILLS_PATH || 'skip_skill_list.txt',
+
+  DB_COLLECTION_MEMBER: process.env.ENV_SOLUTION_DB_MEMBER || 'member_skills_history',
 
   CHALLENGE_BASE_URL: process.env.ENV_CHALLENGE_BASE_URL || 'https://api.topcoder-dev.com',
 
