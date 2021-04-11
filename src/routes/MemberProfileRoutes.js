@@ -9,11 +9,15 @@ module.exports = {
       controller: 'MemberProfileController',
       method: 'updateMemberProfile',
       auth: 'jwt',
+      access: [constants.UserRoles.Admin],
       scopes: [constants.Scopes.WRITE_CHALLENGES, constants.Scopes.ALL_CHALLENGES]
     },
     get: {
       controller: 'MemberProfileController',
-      method: 'searchMemberProfile'
+      method: 'searchMemberProfile',
+      auth: 'jwt',
+      access: [constants.UserRoles.Admin],
+      scopes: [constants.Scopes.READ_CHALLENGES, constants.Scopes.ALL_CHALLENGES]
     }
   }
 }
