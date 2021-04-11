@@ -38,7 +38,8 @@ module.exports = {
   HALF_LIFE_DAYS: process.env.HALF_LIFE_DAYS || 1000,
   SKIP_SKILLS_PATH: process.env.SKIP_SKILLS_PATH || 'skip_skill_list.txt',
 
-  DB_COLLECTION_MEMBER: process.env.ENV_SOLUTION_DB_MEMBER || 'member_skills_history',  TEXT_LENGTH: process.env.TEXT_LENGTH || 300,
+  DB_COLLECTION_MEMBER: process.env.ENV_SOLUTION_DB_MEMBER || 'member_skills_history',
+  TEXT_LENGTH: process.env.TEXT_LENGTH || 300,
 
   CHALLENGE_BASE_URL: process.env.CHALLENGE_BASE_URL || 'https://api.topcoder-dev.com',
 
