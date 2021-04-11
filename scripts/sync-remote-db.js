@@ -6,7 +6,7 @@ const _ = require('lodash')
 const { default: axios } = require('axios')
 const logger = require('../src/common/logger')
 const models = require('../src/models')
-const { BATCH_MAX_COUNT } = require('../app-constants')
+const { BATCH_PUT_MAX_COUNT } = require('../app-constants')
 
 /*
  * Migrate records from DB to ES
@@ -38,10 +38,10 @@ async function migrateRecords () {
         }
       })
     })
-    for (const bit of _.chunk(items, BATCH_MAX_COUNT)) {
+    for (const bit of _.chunk(items, BATCH_PUT_MAX_COUNT)) {
       await models.ChallengeDetail.batchPut(bit)
     }
-    for (const msh of _.chunk(memberSkillsHistoryList, BATCH_MAX_COUNT)) {
+    for (const msh of _.chunk(memberSkillsHistoryList, BATCH_PUT_MAX_COUNT)) {
       await models.MemberSkillsHistory.batchPut(msh)
     }
     logger.info(`sync page ${params.page}, count: ${items.length}`)

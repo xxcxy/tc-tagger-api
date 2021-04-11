@@ -8,7 +8,7 @@ const helper = require('../common/helper')
 const logger = require('../common/logger')
 const errors = require('../common/errors')
 const models = require('../models')
-const { BATCH_MAX_COUNT } = require('../../app-constants')
+const { BATCH_PUT_MAX_COUNT } = require('../../app-constants')
 
 /**
  * Update challenge tag
@@ -27,7 +27,7 @@ async function updateChallengeTag (data) {
       }
     }
     try {
-      for (const bit of _.chunk(challengeTagList, BATCH_MAX_COUNT)) {
+      for (const bit of _.chunk(challengeTagList, BATCH_PUT_MAX_COUNT)) {
         await models.ChallengeDetail.batchPut(bit)
       }
     } catch (e) {

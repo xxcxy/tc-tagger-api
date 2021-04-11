@@ -8,7 +8,7 @@ const _ = require('lodash')
 const { default: axios } = require('axios')
 const logger = require('./logger')
 const models = require('../models')
-const { BATCH_MAX_COUNT } = require('../../app-constants')
+const { BATCH_GET_MAX_COUNT } = require('../../app-constants')
 
 const m2mAuth = require('tc-core-library-js').auth.m2m
 
@@ -244,7 +244,7 @@ function getAppealsEndDate (challenge) {
 async function getChallengeFromDb (challengeIds) {
   const result = []
   if (challengeIds) {
-    for (const ids of _.chunk(challengeIds.split(','), BATCH_MAX_COUNT)) {
+    for (const ids of _.chunk(challengeIds.split(','), BATCH_GET_MAX_COUNT)) {
       const items = await models.ChallengeDetail.batchGet(ids)
       result.push(..._.map(items, i => _.extend(_.omit(i, 'lastRefreshedAt', 'outputTags'), { outputTags: _.map(i.outputTags, 'tag') })))
     }
@@ -326,7 +326,7 @@ async function checkTaggingService () {
  */
 async function assignOutputTag (challengeList) {
   const result = []
-  for (const ids of _.chunk(_.map(challengeList, 'id'), BATCH_MAX_COUNT)) {
+  for (const ids of _.chunk(_.map(challengeList, 'id'), BATCH_GET_MAX_COUNT)) {
     const fromDb = await models.ChallengeDetail.batchGet(ids)
     result.push(..._.map(fromDb, i => [i.id, _.map(i.outputTags, 'tag')]))
   }
@@ -342,7 +342,7 @@ async function assignOutputTag (challengeList) {
 async function getMemberSkillsHistory (handles) {
   if (handles) {
     const result = []
-    for (const ids of _.chunk(handles.split(','), BATCH_MAX_COUNT)) {
+    for (const ids of _.chunk(handles.split(','), BATCH_GET_MAX_COUNT)) {
       const items = await models.MemberSkillsHistory.batchGet(ids)
       result.push(...items)
     }

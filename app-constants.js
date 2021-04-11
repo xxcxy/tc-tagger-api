@@ -2,7 +2,11 @@
  * App constants
  */
 
-const BATCH_MAX_COUNT = 100
+// DynamoDB batchPut limit
+const BATCH_PUT_MAX_COUNT = 25
+
+// DynamoDB batchGet limit
+const BATCH_GET_MAX_COUNT = 100
 
 const UserRoles = {
   Admin: 'administrator',
@@ -16,7 +20,8 @@ const Scopes = {
 }
 
 module.exports = {
-  BATCH_MAX_COUNT,
+  BATCH_PUT_MAX_COUNT,
+  BATCH_GET_MAX_COUNT,
   UserRoles,
   Scopes
 }
