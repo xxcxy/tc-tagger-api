@@ -21,6 +21,10 @@ tags:
     description: Everything about application health.
   - name: Challenge tags
     description: Everything about challenge tags.
+  - name: Member profiles
+    description: Everything about member profiles.
+  - name: Member skills
+    description: Everything about member skills.
 paths:
   /v5/tagger/health:
     get:
@@ -149,7 +153,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ChallengeDetails'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChallengeDetails'
         "400":
           $ref: "#/components/responses/BadRequest"
         "500":
@@ -194,6 +200,205 @@ paths:
         "500":
           $ref: "#/components/responses/ServerError"
 
+  /v5/tagger/member-profiles:
+    get:
+      operationId: v5_member_tag_profile_get_member_profile_retrieve
+      description: >
+        Get all member profiles. Link headers are sent back and they have rel set to
+        prev, next, first, last and contain the relevant URL.
+
+
+        Resulted collection of member profiles can be filtered using filter parameters `handles`, `skill`, `startDate`, `endDate` (all filter parameters are optional and combined by the logical operation `AND`).
+
+      parameters:
+      - in: query
+        name: handles
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+      - in: query
+        name: perPage
+        schema:
+          type: integer
+      - in: query
+        name: skill
+        schema:
+          type: string
+      - in: query
+        name: startDate
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: endDate
+        schema:
+          type: string
+          format: date-time
+      tags:
+      - Member profiles
+      responses:
+        '200':
+          description: OK - the request was successful, the member profiles resource are returned.
+          headers:
+            X-Next-Page:
+              description: The index of the next page
+              schema:
+                type: integer
+            X-Page:
+              description: The index of the current page (starting at 1)
+              schema:
+                type: integer
+            X-Per-Page:
+              description: The number of items to list per page
+              schema:
+                type: integer
+            X-Prev-Page:
+              description: The index of the previous page
+              schema:
+                type: integer
+            X-Total:
+              description: The total number of items
+              schema:
+                type: integer
+            X-Total-Pages:
+              description: The total number of pages
+              schema:
+                type: integer
+            Link:
+              description: Pagination link header.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MemberProfiles'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    put:
+      operationId: v5_member_tag_profile_update_member_profile_create
+      description: > 
+        Contains logic to update member skills based on challenge id
+        
+        
+        **Authorization:** Update tags is accessible by scopes `write:challenges`, `all:challenges`.
+      parameters:
+      - in: query
+        name: challengeId
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - Member profiles
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Successful record count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Members Updated:
+                    type: integer
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /v5/tagger/member-skills:
+    get:
+      operationId: v5_member_tag_profile_get_processed_member_profile_retrieve
+      description: >
+        Get all member skills. Link headers are sent back and they have rel set to
+        prev, next, first, last and contain the relevant URL.
+
+
+        Resulted collection of member profiles can be filtered using filter parameters `handles`, `skill`, `startDate`, `endDate` (all filter parameters are optional and combined by the logical operation `AND`).
+
+      parameters:
+      - in: query
+        name: handles
+        schema:
+          type: string
+      - in: query
+        name: page
+        schema:
+          type: integer
+      - in: query
+        name: perPage
+        schema:
+          type: integer
+      - in: query
+        name: skill
+        schema:
+          type: string
+      - in: query
+        name: startDate
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: endDate
+        schema:
+          type: string
+          format: date-time
+      tags:
+      - Member skills
+      responses:
+        '200':
+          description: OK - the request was successful, the member skills resource are returned.
+          headers:
+            X-Next-Page:
+              description: The index of the next page
+              schema:
+                type: integer
+            X-Page:
+              description: The index of the current page (starting at 1)
+              schema:
+                type: integer
+            X-Per-Page:
+              description: The number of items to list per page
+              schema:
+                type: integer
+            X-Prev-Page:
+              description: The index of the previous page
+              schema:
+                type: integer
+            X-Total:
+              description: The total number of items
+              schema:
+                type: integer
+            X-Total-Pages:
+              description: The total number of pages
+              schema:
+                type: integer
+            Link:
+              description: Pagination link header.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MemberSkills'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    
+
 components:
   schemas:
     ChallengeDetails:
@@ -236,6 +441,29 @@ components:
               userId:
                 type: string
           readOnly: true
+    MemberProfiles:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: object
+          properties:
+            challengeId:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+    MemberSkills:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: object
+          properties:
+            skill:
+              type: string
+            skillConfidence:
+              type: number
   responses:
     Unauthorized:
       description: Unauthorized error.

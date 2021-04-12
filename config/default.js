@@ -35,6 +35,10 @@ module.exports = {
   ENABLE_CUSTOM_TAGGING: process.env.ENABLE_CUSTOM_TAGGING || 'false',
   UPDATE_LOCAL_BEFORE_TAGGING: process.env.UPDATE_LOCAL_BEFORE_TAGGING || 'false',
   EXTRACT_CONFIDENCE: process.env.EXTRACT_CONFIDENCE || 'false',
+  HALF_LIFE_DAYS: process.env.HALF_LIFE_DAYS || 1000,
+  SKIP_SKILLS_PATH: process.env.SKIP_SKILLS_PATH || 'skip_skill_list.txt',
+
+  DB_COLLECTION_MEMBER: process.env.DB_COLLECTION_MEMBER || 'member_skills_history',
   TEXT_LENGTH: process.env.TEXT_LENGTH || 300,
 
   CHALLENGE_BASE_URL: process.env.CHALLENGE_BASE_URL || 'https://api.topcoder-dev.com',

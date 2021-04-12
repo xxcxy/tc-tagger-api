@@ -29,13 +29,16 @@ The following parameters can be set in config files or in env variables:
 - UPDATE_LOCAL_BEFORE_TAGGING: Decides whether to refresh the local emsi skill list before extracting tags
 - EXTRACT_CONFIDENCE: Decides whether to extract confidence scores with the extracted tags
 - TEXT_LENGTH: This key restricts the text length given to the external EMSI endpoint to reduce the request size
+- HALF_LIFE_DAYS: The value of half-life for the calculation of decay score.
+- SKIP_SKILLS_PATH: The path to the skip_skill text file for the member skills.
+- DB_COLLECTION_MEMBER: The name of the collection where member profile is cached
 - CHALLENGE_BASE_URL: The Topcoder challenge v5 url
 - TAGGING_API_BASE_URL: The tagging service url
 
 ## Available commands
 1. Drop/delete tables: `npm run drop-table`
 2. Creating tables: `npm run create-table`
-3. Sync data from dev env: `npm run ssync-db`
+3. Sync data from dev env: `npm run sync-db`
 
 ## Local DynamoDB
 Change to the ./local directory and run `docker-compose up`.

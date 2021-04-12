@@ -28,8 +28,10 @@ async function searchChallengeTag (req, res) {
 
 function sendAndSleep (response, secondsLeft) {
   if (secondsLeft <= 0) {
+    logger.debug('stream: ended')
     response.end()
   } else {
+    logger.debug(`stream: "seconds left": ${secondsLeft} \n`)
     response.write(`{"seconds left": ${secondsLeft} }\n`)
     setTimeout(function () {
       sendAndSleep(response, secondsLeft - 1)
