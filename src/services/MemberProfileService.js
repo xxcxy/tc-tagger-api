@@ -62,6 +62,8 @@ async function updateMemberProfile (challengeId) {
         logger.logFullError(e, { signature: 'updateChallengeTag' })
       }
     }
+  } else {
+    logger.info('Tags are already extracted for the challenge, got them from DB.')
   }
   if (!challengeDetail) {
     return { 'Members Updated': 0 }
