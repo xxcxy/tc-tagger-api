@@ -1,29 +1,23 @@
 /**
- * Contains challenge-tag routes
+ * Contains member-profile routes
  */
 const constants = require('../../app-constants')
 
 module.exports = {
-  '/challenge-tags': {
+  '/member-profiles': {
     put: {
-      controller: 'ChallengeTagController',
-      method: 'updateChallengeTag',
+      controller: 'MemberProfileController',
+      method: 'updateMemberProfile',
       auth: 'jwt',
       access: [constants.UserRoles.Admin],
       scopes: [constants.Scopes.WRITE_CHALLENGES, constants.Scopes.ALL_CHALLENGES]
     },
     get: {
-      controller: 'ChallengeTagController',
-      method: 'searchChallengeTag',
+      controller: 'MemberProfileController',
+      method: 'searchMemberProfile',
       auth: 'jwt',
       access: [constants.UserRoles.Admin],
       scopes: [constants.Scopes.READ_CHALLENGES, constants.Scopes.ALL_CHALLENGES]
-    }
-  },
-  '/challenge-tags/stream-demo': {
-    get: {
-      controller: 'ChallengeTagController',
-      method: 'streamDemo'
     }
   }
 }

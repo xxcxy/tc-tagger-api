@@ -1,0 +1,694 @@
+{
+	"info": {
+		"_postman_id": "267f1477-1e68-48d4-9dff-9ebebd4fcc77",
+		"name": "tc-tagger-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Challenge Tags",
+			"item": [
+				{
+					"name": "/challenge-tags [m2m]",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-m2m}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/challenge-tags",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							],
+							"query": [
+								{
+									"key": "challengeId",
+									"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
+									"disabled": true
+								},
+								{
+									"key": "tag",
+									"value": "Chatbot",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "Autopilot",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags/stream-demo",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/challenge-tags/stream-demo",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags",
+								"stream-demo"
+							],
+							"query": [
+								{
+									"key": "challengeId",
+									"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
+									"disabled": true
+								},
+								{
+									"key": "tag",
+									"value": "Chatbot",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "Autopilot",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags?challengeId [m2m]",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-m2m}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/challenge-tags?challengeId={{challengeId}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							],
+							"query": [
+								{
+									"key": "challengeId",
+									"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
+									"disabled": true
+								},
+								{
+									"key": "tag",
+									"value": "Chatbot",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "Autopilot",
+									"disabled": true
+								},
+								{
+									"key": "challengeId",
+									"value": "{{challengeId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags {challengeId} in body [m2m]",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-m2m}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"challengeId\": \"{{challengeId}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/challenge-tags",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							],
+							"query": [
+								{
+									"key": "challengeId",
+									"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
+									"disabled": true
+								},
+								{
+									"key": "tag",
+									"value": "Chatbot",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "Autopilot",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags?status=open [m2m]",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-m2m}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/challenge-tags?page=1&status=open&perPage=10",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							],
+							"query": [
+								{
+									"key": "challengeId",
+									"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "status",
+									"value": "open"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								},
+								{
+									"key": "tag",
+									"value": "Chatbot",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "Autopilot",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags [user] - no access",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/challenge-tags",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							],
+							"query": [
+								{
+									"key": "challengeId",
+									"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
+									"disabled": true
+								},
+								{
+									"key": "tag",
+									"value": "Chatbot",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "Autopilot",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags [m2m]",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-m2m}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"challengeId\": [\n        \"{{challengeId}}\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/challenge-tags",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags [admin]",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-admin}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"challengeId\": [\n        \"{{challengeId}}\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/challenge-tags",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags [user] - no access",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-user}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"challengeId\": [\n        \"{{challengeId}}\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/challenge-tags",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Member Profile/Skills",
+			"item": [
+				{
+					"name": "/get-member-skills (filters) [m2m]",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token-m2m}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/member-skills?handles=TonyJ,ritesh_cs&page=1&perPage=10&skill=Design Theory,Hooking,Instant Messaging&startDate=2020-02-22T17:45:13.000Z&endDate=2021-12-22T17:45:13.000Z",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"member-skills"
+							],
+							"query": [
+								{
+									"key": "handles",
+									"value": "TonyJ,ritesh_cs"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								},
+								{
+									"key": "skill",
+									"value": "Design Theory,Hooking,Instant Messaging"
+								},
+								{
+									"key": "startDate",
+									"value": "2020-02-22T17:45:13.000Z"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-12-22T17:45:13.000Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/get-member-skills (filters) [user] - no access Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token-user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/member-skills?handles=TonyJ,ritesh_cs&page=1&perPage=10&skill=Design Theory,Hooking,Instant Messaging&startDate=2020-02-22T17:45:13.000Z&endDate=2021-12-22T17:45:13.000Z",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"member-skills"
+							],
+							"query": [
+								{
+									"key": "handles",
+									"value": "TonyJ,ritesh_cs"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								},
+								{
+									"key": "skill",
+									"value": "Design Theory,Hooking,Instant Messaging"
+								},
+								{
+									"key": "startDate",
+									"value": "2020-02-22T17:45:13.000Z"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-12-22T17:45:13.000Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/get-member-profiles (filters) [m2m]",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token-m2m}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/member-profiles?handles=tester1234,TCConManager&perPage=10&skill=Design Theory,Hooking,Instant Messaging&startDate=2020-02-22T17:45:13.000Z&endDate=2021-12-22T17:45:13.000Z&page=1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"member-profiles"
+							],
+							"query": [
+								{
+									"key": "handles",
+									"value": "tester1234,TCConManager"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								},
+								{
+									"key": "skill",
+									"value": "Design Theory,Hooking,Instant Messaging"
+								},
+								{
+									"key": "startDate",
+									"value": "2020-02-22T17:45:13.000Z"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-12-22T17:45:13.000Z"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/get-member-profiles (filters) [user] - no access Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token-user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/member-profiles?handles=tester1234,TCConManager&perPage=10&skill=Design Theory,Hooking,Instant Messaging&startDate=2020-02-22T17:45:13.000Z&endDate=2021-12-22T17:45:13.000Z&page=1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"member-profiles"
+							],
+							"query": [
+								{
+									"key": "handles",
+									"value": "tester1234,TCConManager"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								},
+								{
+									"key": "skill",
+									"value": "Design Theory,Hooking,Instant Messaging"
+								},
+								{
+									"key": "startDate",
+									"value": "2020-02-22T17:45:13.000Z"
+								},
+								{
+									"key": "endDate",
+									"value": "2021-12-22T17:45:13.000Z"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/update-member-profiles?challengeId [m2m]",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token-m2m}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/member-profiles?challengeId=6008631e-48e5-45d7-8025-2758374a7d9d",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"member-profiles"
+							],
+							"query": [
+								{
+									"key": "challengeId",
+									"value": "6008631e-48e5-45d7-8025-2758374a7d9d"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/update-member-profiles?challengeId [no token] - no access",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/member-profiles?challengeId=6008631e-48e5-45d7-8025-2758374a7d9d",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"member-profiles"
+							],
+							"query": [
+								{
+									"key": "challengeId",
+									"value": "6008631e-48e5-45d7-8025-2758374a7d9d"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/update-member-profiles [m2m] - missing challenge id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token-m2m}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/member-profiles",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"member-profiles"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/health",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -5,6 +5,18 @@ module.exports = {
 
   AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
   VALID_ISSUERS: process.env.VALID_ISSUERS || '["https://api.topcoder-dev.com", "https://api.topcoder.com", "https://topcoder-dev.auth0.com/", "https://auth.topcoder-dev.com/"]',
+
+  // Auth0 URL, used to get TC M2M token
+  AUTH0_URL: process.env.AUTH0_URL,
+  // Auth0 audience, used to get TC M2M token
+  AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
+  // Auth0 client id, used to get TC M2M token
+  AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
+  // Auth0 client secret, used to get TC M2M token
+  AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
+  // Proxy Auth0 URL, used to get TC M2M token
+  AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL,
+
   AMAZON: {
     AWS_REGION: process.env.AWS_REGION || 'us-east-1',
     DYNAMODB_READ_CAPACITY_UNITS: process.env.DYNAMODB_READ_CAPACITY_UNITS || 10,
@@ -23,6 +35,10 @@ module.exports = {
   ENABLE_CUSTOM_TAGGING: process.env.ENABLE_CUSTOM_TAGGING || 'false',
   UPDATE_LOCAL_BEFORE_TAGGING: process.env.UPDATE_LOCAL_BEFORE_TAGGING || 'false',
   EXTRACT_CONFIDENCE: process.env.EXTRACT_CONFIDENCE || 'false',
+  HALF_LIFE_DAYS: process.env.HALF_LIFE_DAYS || 1000,
+  SKIP_SKILLS_PATH: process.env.SKIP_SKILLS_PATH || 'skip_skill_list.txt',
+
+  DB_COLLECTION_MEMBER: process.env.DB_COLLECTION_MEMBER || 'member_skills_history',
   TEXT_LENGTH: process.env.TEXT_LENGTH || 300,
 
   CHALLENGE_BASE_URL: process.env.CHALLENGE_BASE_URL || 'https://api.topcoder-dev.com',
