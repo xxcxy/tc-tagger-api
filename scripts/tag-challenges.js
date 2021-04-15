@@ -29,7 +29,7 @@ const TAGGER_TOKEN = null // if token is not provided, then we would use the tok
  * Call tagger API for the challenges from API
  */
 async function tagChallenges () {
-  const params = { perPage: 1, page: 1, status: 'Active' }
+  const params = { perPage: 1, page: 1, status: 'Active', currentPhaseName: 'Registration' }
   while (true) {
     const token = await getM2MToken()
     let res
