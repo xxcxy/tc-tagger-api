@@ -125,15 +125,13 @@ async function tagMember (memberHandle) {
               }
             }
           )
+          logger.info(`Members Updated: ${processRes.data['Members Updated']}/${winnerHandles.length} for the challenge: ${challengeId}`)
         } catch (err) {
           logger.logFullError(err, {
             component: 'tagMember',
             context: 'PUT /member-profiles'
           })
-          throw err
         }
-
-        logger.info(`Members Updated: ${processRes.data['Members Updated']}/${winnerHandles.length} for the challenge: ${challengeId}`)
       }
 
       totalProcessedChallenges += 1
