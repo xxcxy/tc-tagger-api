@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "267f1477-1e68-48d4-9dff-9ebebd4fcc77",
+		"_postman_id": "4f0b02c8-b4bb-4bd8-bedc-6f09a4b53a0e",
 		"name": "tc-tagger-api",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -30,44 +30,6 @@
 							],
 							"path": [
 								"challenge-tags"
-							],
-							"query": [
-								{
-									"key": "challengeId",
-									"value": "9bd8e6a7-b682-401e-bf7f-790daf9f6c60,7e0a375d-3958-4535-94d4-77f2c12d2527",
-									"disabled": true
-								},
-								{
-									"key": "tag",
-									"value": "Chatbot",
-									"disabled": true
-								},
-								{
-									"key": "name",
-									"value": "Autopilot",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/challenge-tags/stream-demo",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{URL}}/challenge-tags/stream-demo",
-							"host": [
-								"{{URL}}"
-							],
-							"path": [
-								"challenge-tags",
-								"stream-demo"
 							],
 							"query": [
 								{
@@ -318,6 +280,72 @@
 							],
 							"path": [
 								"challenge-tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags open [m2m]",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-m2m}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/challenge-tags?status=open",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "open"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/challenge-tags completed [m2m]",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token-m2m}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/challenge-tags?status=completed",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"challenge-tags"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "completed"
+								}
 							]
 						}
 					},
@@ -626,6 +654,39 @@
 					"response": []
 				},
 				{
+					"name": "/update-member-profiles?startDate  [m2m]",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token-m2m}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/member-profiles?startDate=2020-07-01T00:00:00.000Z&endDate=2020-12-01T00:00:00.000Z",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"member-profiles"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2020-07-01T00:00:00.000Z"
+								},
+								{
+									"key": "endDate",
+									"value": "2020-12-01T00:00:00.000Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/update-member-profiles?challengeId [no token] - no access",
 					"request": {
 						"method": "PUT",
@@ -643,29 +704,6 @@
 									"key": "challengeId",
 									"value": "6008631e-48e5-45d7-8025-2758374a7d9d"
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "/update-member-profiles [m2m] - missing challenge id",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{token-m2m}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{URL}}/member-profiles",
-							"host": [
-								"{{URL}}"
-							],
-							"path": [
-								"member-profiles"
 							]
 						}
 					},
