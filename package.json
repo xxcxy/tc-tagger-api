@@ -11,7 +11,8 @@
     "create-table": "env-cmd node scripts/create-tables.js",
     "drop-table": "env-cmd node scripts/drop-tables.js",
     "sync-db": "env-cmd node scripts/sync-remote-db.js",
-    "tag-challenges": "env-cmd node scripts/tag-challenges.js"
+    "tag-challenges": "env-cmd --silent node scripts/tag-challenges.js",
+    "tag-member": "env-cmd --silent node scripts/tag-member.js"
   },
   "keywords": [],
   "author": "",
