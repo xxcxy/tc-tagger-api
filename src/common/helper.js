@@ -200,8 +200,6 @@ async function getAllPageChallenge (criteria) {
   const params = _.extend({
     page: 1,
     perPage: '100',
-    status: 'Active',
-    currentPhaseName: 'Registration',
     sortBy: 'updated',
     sortOrder: 'asc',
     isLightweight: 'false'
@@ -441,9 +439,9 @@ async function findCompletedChallenge (monitor) {
   const cd = await models.ChallengeDetail.get('1')
   if (cd && cd.lastRefreshedAt) {
     criteria.updatedDateStart = cd.lastRefreshedAt
-    monitor(`Fetching completed start at ${cd.lastRefreshedAt.toISOString()} challenges from topcoder API`)
+    monitor(`Fetching completed start at ${cd.lastRefreshedAt.toISOString()} challenges from topcoder API using criteria ${JSON.stringify(criteria)}`)
   } else {
-    monitor('Fetching all completed challenges from topcoder API...')
+    monitor(`Fetching all completed challenges from topcoder API using criteria ${JSON.stringify(criteria)}`)
   }
   return await getAllPageChallenge(criteria)
 }

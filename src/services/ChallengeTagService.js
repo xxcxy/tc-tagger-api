@@ -21,7 +21,8 @@ async function getChallengeListToUpdate (challengeIdList, status, monitor) {
   const challengeList = []
   if (status === 'open') {
     monitor('Fetching all active challenges from topcoder API...')
-    challengeList.push(...await helper.getAllPageChallenge())
+    // get challenges open for registration
+    challengeList.push(...await helper.getAllPageChallenge({ status: 'Active', currentPhaseName: 'Registration' }))
   } else if (status === 'completed') {
     challengeList.push(...await helper.findCompletedChallenge(monitor))
   } else if (challengeIdList) {
@@ -115,7 +116,14 @@ async function searchChallengeTag (criteria) {
         result
       }
     } else {
-      const searchResult = await helper.getAllPageChallenge(_.pick(criteria, ['track', 'tracks', 'type', 'types', 'search', 'name', 'description']))
+      const searchResult = await helper.getAllPageChallenge(_.assign(
+        _.pick(criteria, ['track', 'tracks', 'type', 'types', 'search', 'name', 'description']),
+        // challenges open for registration
+        {
+          status: 'Active',
+          currentPhaseName: 'Registration'
+        }
+      ))
       const result = await helper.assignOutputTag(searchResult)
       const afterFilter = _.filter(result, c => criteria.tag.split(',').every(t => _.includes(c.outputTags, t)))
       return {

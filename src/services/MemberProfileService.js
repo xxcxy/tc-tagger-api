@@ -60,7 +60,7 @@ async function getChallengeListToUpdate (query, monitor) {
     monitor(`Fetching challenge ${query.challengeId} from topcoder API...`)
     challengeList.push(await helper.getChallenge(query.challengeId))
   } else if (query.startDate) {
-    const criteria = { status: 'Completed', updatedDateStart: query.startDate, updatedDateEnd: query.endDate, 'types[]': ['CH', 'F2F'], currentPhaseName: null }
+    const criteria = { status: 'Completed', updatedDateStart: query.startDate, updatedDateEnd: query.endDate, 'types[]': ['CH', 'F2F'] }
     monitor(`Fetching start at ${query.startDate.toISOString()}, end at ${query.endDate.toISOString()} completed challenges from topcoder API`)
     challengeList.push(...await helper.getAllPageChallenge(criteria))
   } else {
