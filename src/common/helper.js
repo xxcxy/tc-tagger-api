@@ -195,6 +195,7 @@ async function getSpecificPageChallenge (criteria) {
  * @returns {Object} challenge array with total count
  */
 async function getAllPageChallenge (criteria) {
+  const token = await getM2MToken()
   const result = []
   const params = _.extend({
     page: 1,
@@ -207,7 +208,12 @@ async function getAllPageChallenge (criteria) {
   }, criteria)
   while (true) {
     try {
-      const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges`, { params })
+      const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges`, {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       result.push(..._.map(res.data, d => adaptChallenge(d)))
       if (parseInt(res.headers['x-total-pages']) > params.page) {
         params.page = params.page + 1
