@@ -40,7 +40,7 @@ async function updateSkillsHistory (challenge, tags, memberMap, monitor) {
       logger.debug(`create member skills history => new for ${handle}`)
       memberMap[handle] = {
         handle,
-        history: [{ challengeId: challenge.id, tags, Timestamp: challenge.appealsEndDate.toISOString(), LastRefreshedAt: new Date().toISOString() }]
+        history: [{ challengeId: challenge.id, tags, Timestamp: challenge.appealsEndDate.toISOString() }]
       }
     }
     monitor(`Extracted ${JSON.stringify(tags)} for user ${handle}`)
