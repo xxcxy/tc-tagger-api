@@ -195,20 +195,23 @@ async function getSpecificPageChallenge (criteria) {
  * @returns {Object} challenge array with total count
  */
 async function getAllPageChallenge (criteria) {
+  const token = await getM2MToken()
   const result = []
-  const params = {
-    ..._.pick(criteria, ['track', 'tracks', 'type', 'types', 'search', 'name', 'description']),
+  const params = _.extend({
     page: 1,
     perPage: '100',
-    status: 'Active',
-    currentPhaseName: 'Registration',
     sortBy: 'updated',
     sortOrder: 'asc',
     isLightweight: 'false'
-  }
+  }, criteria)
   while (true) {
     try {
-      const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges`, { params })
+      const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges`, {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       result.push(..._.map(res.data, d => adaptChallenge(d)))
       if (parseInt(res.headers['x-total-pages']) > params.page) {
         params.page = params.page + 1
@@ -250,7 +253,7 @@ async function getChallengeFromDb (challengeIds) {
     }
   } else {
     const items = await models.ChallengeDetail.scan().all().exec()
-    result.push(..._.map(items, i => _.extend(_.omit(i, 'lastRefreshedAt', 'outputTags'), { outputTags: _.map(i.outputTags, 'tag') })))
+    result.push(..._.map(_.filter(items, i => i.id !== '1'), i => _.extend(_.omit(i, 'lastRefreshedAt', 'outputTags'), { outputTags: _.map(i.outputTags, 'tag') })))
   }
   return result
 }
@@ -266,12 +269,10 @@ async function getChallengeTag (challenge) {
     const emsiType = _.toLower(config.TAGGING_EMSI_TYPE)
     if (_.includes(['external', 'internal_refresh', 'internal_no_refresh'], emsiType)) {
       const tagArr = await getTags(`emsi/${emsiType}`, challenge.description, emsiType === 'external' ? parseInt(config.TEXT_LENGTH) : null)
-      logger.debug(`tags for challenge id "${challenge.id}": ${JSON.stringify(tagArr)}`)
       tags.push(...tagArr)
     }
     if (_.toLower(config.ENABLE_CUSTOM_TAGGING) === 'true') {
       const tagArr = await getTags('custom', challenge.description)
-      logger.debug(`tags for challenge id "${challenge.id}": ${JSON.stringify(tagArr)}`)
       tags.push(...tagArr)
     }
     const outputTags = _.uniqBy(tags, v => _.toLower(v.tag))
@@ -398,6 +399,82 @@ function filterMemberSkillHistory (memberSkillsHistoryList, startDate, endDate, 
   return _.filter(result, msh => msh.handle !== '1' && matchHistorySkill(msh.history, skill))
 }
 
+/**
+ * Generate a monitor function
+ * @param {Object} res the http response
+ * @param {Boolean} stream the stream parameter
+ * @returns monitor function
+ */
+function generateMonitor (res, stream) {
+  const messageCollector = []
+  if (stream) {
+    res.setHeader('Content-Type', 'application/json')
+    res.setHeader('Transfer-Encoding', 'chunked')
+  }
+  return (msg, end) => {
+    logger.info(msg)
+    const message = `[${new Date().toISOString()}] ${msg}`
+    if (stream) {
+      res.write(`{"message": "${message}" }\n`)
+    } else {
+      messageCollector.push({ message })
+    }
+    if (end) {
+      if (stream) {
+        res.end()
+      } else {
+        res.send(messageCollector)
+      }
+    }
+  }
+}
+
+/**
+ * Find completed challenge list
+ * @param {Function} monitor the process monitor
+ * @returns an array of challenge
+ */
+async function findCompletedChallenge (monitor) {
+  const criteria = { status: 'Completed' }
+  const cd = await models.ChallengeDetail.get('1')
+  if (cd && cd.lastRefreshedAt) {
+    criteria.updatedDateStart = cd.lastRefreshedAt
+    monitor(`Fetching completed start at ${cd.lastRefreshedAt.toISOString()} challenges from topcoder API using criteria ${JSON.stringify(criteria)}`)
+  } else {
+    monitor(`Fetching all completed challenges from topcoder API using criteria ${JSON.stringify(criteria)}`)
+  }
+  return await getAllPageChallenge(criteria)
+}
+
+/**
+ * Generate a metrics object
+ * @param {Number} all the record count
+ * @returns the metrics object
+ */
+function createMetrics (all) {
+  return { all, success: 0, fail: 0, hasTags: 0, startTime: Date.now(), doneCount: 0, timeSpent: 0, avgTimePerDocument: 0, timeLeft: 0 }
+}
+
+/**
+ * Update the metrics
+ * @param {Object} metrics the metrics
+ * @param {Number} result the count of extracted tags, -1 means failed
+ */
+function updateMetrics (metrics, result) {
+  metrics.doneCount = metrics.doneCount + 1
+  metrics.timeSpent = Date.now() - metrics.startTime
+  metrics.avgTimePerDocument = metrics.timeSpent / metrics.doneCount
+  metrics.timeLeft = metrics.avgTimePerDocument * (metrics.all - metrics.doneCount)
+  if (result === -1) {
+    metrics.fail = metrics.fail + 1
+  } else if (result === 0) {
+    metrics.success = metrics.success + 1
+  } else if (result > 0) {
+    metrics.success = metrics.success + 1
+    metrics.hasTags = metrics.hasTags + 1
+  }
+}
+
 module.exports = {
   getM2MToken,
   autoWrapExpress,
@@ -411,5 +488,9 @@ module.exports = {
   checkTaggingService,
   assignOutputTag,
   getMemberSkillsHistory,
-  filterMemberSkillHistory
+  filterMemberSkillHistory,
+  generateMonitor,
+  findCompletedChallenge,
+  createMetrics,
+  updateMetrics
 }

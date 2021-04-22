@@ -6,7 +6,7 @@ A API based tool that create and maintain challenge tags.
 - [NodeJS](https://nodejs.org/en/) (v14)
 - [DynamoDB](https://aws.amazon.com/dynamodb/)
 - [Docker](https://www.docker.com/)
-- [Docker Compose](https://docs.docker.com/compose/B
+- [Docker Compose](https://docs.docker.com/compose/)
 
 ## Configuration
 
