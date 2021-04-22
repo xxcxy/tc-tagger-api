@@ -197,7 +197,7 @@ async function getSpecificPageChallenge (criteria) {
 async function getAllPageChallenge (criteria) {
   const token = await getM2MToken()
   const result = []
-  const params = _.extend({
+  const params = _.assign({
     page: 1,
     perPage: '100',
     sortBy: 'updated',
@@ -249,11 +249,11 @@ async function getChallengeFromDb (challengeIds) {
   if (challengeIds) {
     for (const ids of _.chunk(challengeIds.split(','), BATCH_GET_MAX_COUNT)) {
       const items = await models.ChallengeDetail.batchGet(ids)
-      result.push(..._.map(items, i => _.extend(_.omit(i, 'lastRefreshedAt', 'outputTags'), { outputTags: _.map(i.outputTags, 'tag') })))
+      result.push(..._.map(items, i => _.assign(_.omit(i, 'lastRefreshedAt', 'outputTags'), { outputTags: _.map(i.outputTags, 'tag') })))
     }
   } else {
     const items = await models.ChallengeDetail.scan().all().exec()
-    result.push(..._.map(_.filter(items, i => i.id !== '1'), i => _.extend(_.omit(i, 'lastRefreshedAt', 'outputTags'), { outputTags: _.map(i.outputTags, 'tag') })))
+    result.push(..._.map(_.filter(items, i => i.id !== '1'), i => _.assign(_.omit(i, 'lastRefreshedAt', 'outputTags'), { outputTags: _.map(i.outputTags, 'tag') })))
   }
   return result
 }

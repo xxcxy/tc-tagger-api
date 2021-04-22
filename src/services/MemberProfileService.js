@@ -130,14 +130,15 @@ async function updateMemberProfileByHandle (handle, monitor) {
         const matchWinner = _.find(challenge.winners, winner => winner.handle.toLowerCase() === handle.toLowerCase())
         if (matchWinner) {
           challengeFound++
-          const result = await updateSingleChallenge(_.extend({}, challenge, { winners: [matchWinner] }), memberMap, metrics, monitor, taggingServiceChecked)
+          // update history only for one winner
+          const result = await updateSingleChallenge(_.assign({}, challenge, { winners: [matchWinner] }), memberMap, metrics, monitor, taggingServiceChecked)
           if (result) {
             taggingServiceChecked = result.taggingServiceChecked
-            // save tags
-            await new models.ChallengeDetail(_.extend(result.challengeWithTags, _.pick(challenge, 'winners'))).save()
+            // save tags with ALL winners
+            await new models.ChallengeDetail(_.assign(result.challengeWithTags, _.pick(challenge, 'winners'))).save()
           }
           if (memberMap[handle]) {
-            // save memberProfile
+            // save memberProfile only for one winner
             await new models.MemberSkillsHistory(memberMap[handle]).save()
           }
         } else {
