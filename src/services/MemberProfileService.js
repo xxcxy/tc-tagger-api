@@ -160,6 +160,7 @@ async function updateMemberProfileByHandle (handle, monitor) {
  * @param {Function} monitor the process monitor
  */
 async function updateMemberProfileByDatesOrChallengesIds (criteria, monitor) {
+  logger.info('Fetching data from topcoder API')
   const challengeList = await getChallengeListToUpdate(criteria, monitor)
   logger.debug(`Challenge details ${JSON.stringify(challengeList)}`)
 
@@ -214,7 +215,6 @@ async function updateMemberProfileByDatesOrChallengesIds (criteria, monitor) {
  * @Params {Object} res the response
  */
 async function updateMemberProfile (criteria, res) {
-  logger.info('Fetching data from topcoder API')
   const monitor = helper.generateMonitor(res, criteria.stream)
   if (criteria.memberHandle) {
     await updateMemberProfileByHandle(criteria.memberHandle, monitor)
