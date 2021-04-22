@@ -309,6 +309,10 @@ paths:
           type: string
           format: uuid
       - in: query
+        name: memberHandle
+        schema:
+          type: string
+      - in: query
         name: startDate
         schema:
           type: string

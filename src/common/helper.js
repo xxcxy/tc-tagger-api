@@ -475,6 +475,50 @@ function updateMetrics (metrics, result) {
   }
 }
 
+/**
+ * Get submitted member challenge id list
+ * @param {String} handle the user handle
+ * @param {Function} monitor the process monitor
+ * @returns an array of challenge ids
+ */
+async function getSubmittedChallengeIds (handle, monitor) {
+  monitor(`getMemberIdByHandle "${handle}" from v3`)
+  const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v3/members/${handle}`)
+  const memberId = _.get(res, 'data.result.content.userId')
+  if (_.isUndefined(memberId)) {
+    monitor(`User with handle: ${handle} doesn't exist`)
+    return []
+  }
+  const params = { perPage: 10000, page: 1, resourceRoleId: config.SUBMITTER_RESOURCE_ROLE_ID }
+  const token = await getM2MToken()
+  const challengeIds = []
+  while (true) {
+    let challengesIdsRes
+    try {
+      monitor('Getting the list of challenges where user submitted...')
+      challengesIdsRes = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/resources/${memberId}/challenges`, {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      challengeIds.push(...challengesIdsRes.data)
+    } catch (err) {
+      logger.logFullError(err, {
+        component: 'tagMember',
+        context: 'GET /resources'
+      })
+      monitor(`Getting the list of challenges on page ${params.page} fail`)
+    }
+    if (parseInt(challengesIdsRes.headers['x-total-pages']) > params.page) {
+      params.page = params.page + 1
+    } else {
+      break
+    }
+  }
+  return challengeIds
+}
+
 module.exports = {
   getM2MToken,
   autoWrapExpress,
@@ -492,5 +536,6 @@ module.exports = {
   generateMonitor,
   findCompletedChallenge,
   createMetrics,
-  updateMetrics
+  updateMetrics,
+  getSubmittedChallengeIds
 }

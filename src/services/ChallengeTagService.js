@@ -28,7 +28,10 @@ async function getChallengeListToUpdate (challengeIdList, status, monitor) {
   } else if (challengeIdList) {
     monitor(`Fetching ${JSON.stringify(challengeIdList)} challenges from topcoder API...`)
     for (const challengeId of challengeIdList) {
-      challengeList.push(await helper.getChallenge(challengeId))
+      const challenge = await helper.getChallenge(challengeId)
+      if (challenge) {
+        challengeList.push(challenge)
+      }
     }
   }
   monitor(`Fetched ${challengeList.length} challenges from topcoder API `)
@@ -75,7 +78,7 @@ async function updateChallengeTag (data, criteria, res) {
         monitor(`An error(${e.message}) occurred when saving challenge tags`)
       }
     }
-    if (criteria.status === 'completed' && challengeTagList.length > 0) {
+    if (criteria.status === 'completed' && challengeTagList.length > 0 && metrics.fail === 0) {
       const lastRefreshedAt = _.max(_.map(challengeTagList, 'appealsEndDate'))
       await new models.ChallengeDetail({ id: '1', lastRefreshedAt }).save()
     }
