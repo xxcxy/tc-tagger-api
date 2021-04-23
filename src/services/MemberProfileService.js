@@ -3,6 +3,7 @@
  */
 
 const _ = require('lodash')
+const config = require('config')
 const Joi = require('joi')
 const moment = require('moment')
 const helper = require('../common/helper')
@@ -52,13 +53,16 @@ async function updateSkillsHistory (challenge, tags, memberMap, monitor) {
  * @param {Object} query the query parameters
  * @param {String} status the challenge status
  * @param {Function} monitor the process monitor
- * @returns an array of challenge ids
+ * @returns an array of challenges
  */
 async function getChallengeListToUpdate (query, monitor) {
   const challengeList = []
   if (query.challengeId) {
     monitor(`Fetching challenge ${query.challengeId} from topcoder API...`)
-    challengeList.push(await helper.getChallenge(query.challengeId))
+    const challenge = await helper.getChallenge(query.challengeId)
+    if (challenge) {
+      challengeList.push(challenge)
+    }
   } else if (query.startDate) {
     const criteria = { status: 'Completed', updatedDateStart: query.startDate, updatedDateEnd: query.endDate, 'types[]': ['CH', 'F2F'] }
     monitor(`Fetching start at ${query.startDate.toISOString()}, end at ${query.endDate.toISOString()} completed challenges from topcoder API`)
@@ -71,13 +75,92 @@ async function getChallengeListToUpdate (query, monitor) {
 }
 
 /**
- * Update member profile
- * @params {Object} criteria the query parameters
- * @Params {Object} res the response
+ * Update a single challenge
+ * @param {String} challenge the challenge
+ * @param {Object} memberMap the member map
+ * @param {Object} metrics the metrics
+ * @param {Function} monitor the process monitor
+ * @param {Boolean} taggingServiceChecked the tagging service checked of not
+ * @returns {Object} taggingServiceChecked and updatedTags
  */
-async function updateMemberProfile (criteria, res) {
+async function updateSingleChallenge (challenge, memberMap, metrics, monitor, taggingServiceChecked) {
+  const challengeDetail = await models.ChallengeDetail.get(challenge.id)
+  if (!challengeDetail) {
+    if (taggingServiceChecked || (await helper.checkTaggingService())) {
+      monitor(`Extracting Tags for challenge ${challenge.id}...`)
+      try {
+        const challengeWithTags = await helper.getChallengeTag(challenge)
+        await updateSkillsHistory(challenge, challengeWithTags.outputTags, memberMap, monitor)
+        helper.updateMetrics(metrics, challengeWithTags.outputTags.length)
+        return { taggingServiceChecked: true, challengeWithTags }
+      } catch (e) {
+        helper.updateMetrics(metrics, -1)
+        monitor(`Process challenge ${challenge.id} failed by ${e.message}`)
+      }
+    } else {
+      helper.updateMetrics(metrics, -1)
+      monitor(`Process challenge ${challenge.id} failed by taggingService not health`)
+    }
+  } else {
+    helper.updateMetrics(metrics, challengeDetail.outputTags.length)
+    await updateSkillsHistory(challenge, challengeDetail.outputTags, memberMap, monitor)
+  }
+}
+
+/**
+ * Update member profile by handle
+ * @param {String} handle the member handle
+ * @param {Function} monitor the process monitor
+ */
+async function updateMemberProfileByHandle (handle, monitor) {
+  monitor(`Fetching member ${handle}'s challenges from topcoder API`)
+  const challengeIds = await helper.getSubmittedChallengeIds(handle, monitor)
+  monitor(`Fetched ${challengeIds.length} of challenge ids from topcoder API`)
+  const metrics = helper.createMetrics(challengeIds.length)
+  const memberMap = {}
+  let taggingServiceChecked = false
+  let challengeFound = 0
+  for (const challengeId of challengeIds) {
+    const challenge = await helper.getChallenge(challengeId)
+    if (challenge) {
+      if (challenge.typeId === config.TASK_TYPE_ID) {
+        monitor(`Challenge is skipped because it's a task: ${challengeId}`)
+        helper.updateMetrics(metrics, 0)
+      } else {
+        const matchWinner = _.find(challenge.winners, winner => winner.handle.toLowerCase() === handle.toLowerCase())
+        if (matchWinner) {
+          challengeFound++
+          // update history only for one winner
+          const result = await updateSingleChallenge(_.assign({}, challenge, { winners: [matchWinner] }), memberMap, metrics, monitor, taggingServiceChecked)
+          if (result) {
+            taggingServiceChecked = result.taggingServiceChecked
+            // save tags with ALL winners
+            await new models.ChallengeDetail(_.assign(result.challengeWithTags, _.pick(challenge, 'winners'))).save()
+          }
+          if (memberMap[handle]) {
+            // save memberProfile only for one winner
+            await new models.MemberSkillsHistory(memberMap[handle]).save()
+          }
+        } else {
+          monitor(`Challenge is skipped as user haven't won it: ${challengeId}`)
+          helper.updateMetrics(metrics, 0)
+        }
+      }
+    } else {
+      helper.updateMetrics(metrics, 0)
+    }
+    monitor(`Processed ${metrics.doneCount} of ${metrics.all} challenges, processed percentage ${Math.round(metrics.doneCount * 100 / metrics.all, 0)}%, average time per record ${moment.duration(metrics.avgTimePerDocument).humanize({ ss: 1 })}, time spent: ${moment.duration(metrics.timeSpent).humanize({ ss: 1 })}, time left: ${moment.duration(metrics.timeLeft).humanize({ ss: 1 })}`)
+  }
+  monitor(`summary: user ${handle} processed, ${challengeFound} challenges were found, ${metrics.hasTags} challenges have at least one tag extracted, processed successfully[${metrics.success}], processed failed[${metrics.fail}], time spent[${moment.duration(Date.now() - metrics.startTime).humanize({ ss: 1 })}]`, true)
+}
+
+/**
+ * Update member profile by dates or challenge ids
+ * @params {Object} criteria the query parameters
+ * @param {Function} monitor the process monitor
+ */
+async function updateMemberProfileByDatesOrChallengesIds (criteria, monitor) {
   logger.info('Fetching data from topcoder API')
-  const monitor = helper.generateMonitor(res, criteria.stream)
   const challengeList = await getChallengeListToUpdate(criteria, monitor)
   logger.debug(`Challenge details ${JSON.stringify(challengeList)}`)
 
@@ -87,27 +170,10 @@ async function updateMemberProfile (criteria, res) {
   const metrics = helper.createMetrics(challengeList.length)
   // collect and update skills history
   for (const challenge of challengeList) {
-    const challengeDetail = await models.ChallengeDetail.get(challenge.id)
-    if (!challengeDetail) {
-      if (taggingServiceChecked || (await helper.checkTaggingService())) {
-        taggingServiceChecked = true
-        monitor(`Extracting Tags for challenge ${challenge.id}...`)
-        try {
-          const challengeWithTags = await helper.getChallengeTag(challenge)
-          await updateSkillsHistory(challenge, challengeWithTags.outputTags, memberMap, monitor)
-          updateChallengeTags.push(challengeWithTags)
-          helper.updateMetrics(metrics, challengeWithTags.outputTags.length)
-        } catch (e) {
-          helper.updateMetrics(metrics, -1)
-          monitor(`Process challenge ${challenge.id} failed by ${e.message}`)
-        }
-      } else {
-        helper.updateMetrics(metrics, -1)
-        monitor(`Process challenge ${challenge.id} failed by taggingService not health`)
-      }
-    } else {
-      helper.updateMetrics(metrics, challengeDetail.outputTags.length)
-      await updateSkillsHistory(challenge, challengeDetail.outputTags, memberMap, monitor)
+    const result = await updateSingleChallenge(challenge, memberMap, metrics, monitor, taggingServiceChecked)
+    if (result) {
+      taggingServiceChecked = result.taggingServiceChecked
+      updateChallengeTags.push(result.challengeWithTags)
     }
     monitor(`Processed ${metrics.doneCount} of ${metrics.all} challenges, processed percentage ${Math.round(metrics.doneCount * 100 / metrics.all, 0)}%, average time per record ${moment.duration(metrics.avgTimePerDocument).humanize({ ss: 1 })}, time spent: ${moment.duration(metrics.timeSpent).humanize({ ss: 1 })}, time left: ${moment.duration(metrics.timeLeft).humanize({ ss: 1 })}`)
   }
@@ -123,7 +189,7 @@ async function updateMemberProfile (criteria, res) {
       monitor(`An error(${e.message}) occurred when saving challenge tags`)
     }
   }
-  if (!criteria.challengeId && !criteria.startDate) {
+  if (!criteria.challengeId && !criteria.startDate && updateChallengeTags.length > 0 && metrics.fail === 0 && saved === updateChallengeTags.length) {
     const lastRefreshedAt = _.max(_.map(challengeList, 'appealsEndDate'))
     await new models.ChallengeDetail({ id: '1', lastRefreshedAt }).save()
   }
@@ -143,12 +209,35 @@ async function updateMemberProfile (criteria, res) {
   monitor(`summary: user process[${memberCount}], processed successfully[${saved}], processed failed[${memberCount - saved}], time spent[${moment.duration(Date.now() - metrics.startTime).humanize({ ss: 1 })}]`, true)
 }
 
+/**
+ * Update member profile
+ * @params {Object} criteria the query parameters
+ * @Params {Object} res the response
+ */
+async function updateMemberProfile (criteria, res) {
+  const monitor = helper.generateMonitor(res, criteria.stream)
+  if (criteria.memberHandle) {
+    await updateMemberProfileByHandle(criteria.memberHandle, monitor)
+  } else {
+    await updateMemberProfileByDatesOrChallengesIds(criteria, monitor)
+  }
+}
+
 updateMemberProfile.schema = Joi.object().keys({
   criteria: Joi.object().keys({
     challengeId: Joi.when('startDate', {
       is: Joi.exist(),
       then: Joi.forbidden(),
-      otherwise: Joi.string().uuid()
+      otherwise: Joi.when('memberHandle', {
+        is: Joi.exist(),
+        then: Joi.forbidden(),
+        otherwise: Joi.string().uuid()
+      })
+    }),
+    memberHandle: Joi.when('startDate', {
+      is: Joi.exist(),
+      then: Joi.forbidden(),
+      otherwise: Joi.string()
     }),
     startDate: Joi.date().iso(),
     endDate: Joi.date().iso().default(() => new Date()),

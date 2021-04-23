@@ -34,6 +34,8 @@ The following parameters can be set in config files or in env variables:
 - DB_COLLECTION_MEMBER: The name of the collection where member profile is cached
 - CHALLENGE_BASE_URL: The Topcoder challenge v5 url
 - TAGGING_API_BASE_URL: The tagging service url
+- SUBMITTER_RESOURCE_ROLE_ID: The submitter role id
+- TASK_TYPE_ID: The task type id
 
 ## Available commands
 1. Drop/delete tables: `npm run drop-table`
