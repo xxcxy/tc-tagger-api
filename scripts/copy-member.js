@@ -13,7 +13,7 @@
 /**
  * Copy member history form one user to another one
  */
-async function migrateRecords (sourceMemberHandle, targetMemberHandle) {
+async function copyMemberSkillsHistory (sourceMemberHandle, targetMemberHandle) {
   const skillsHistory = await models.MemberSkillsHistory.get(sourceMemberHandle)
 
   if (skillsHistory) {
@@ -32,7 +32,7 @@ if (!sourceMemberHandle || !targetMemberHandle) {
     process.exit(1)
 }
 
-migrateRecords(sourceMemberHandle, targetMemberHandle)
+copyMemberSkillsHistory(sourceMemberHandle, targetMemberHandle)
   .then(() => {
     logger.info('Done')
     process.exit()
