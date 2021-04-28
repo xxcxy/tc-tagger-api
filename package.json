@@ -11,7 +11,9 @@
     "create-table": "env-cmd node scripts/create-tables.js",
     "drop-table": "env-cmd node scripts/drop-tables.js",
     "sync-db": "env-cmd node scripts/sync-remote-db.js",
-    "tag-challenges": "env-cmd node scripts/tag-challenges.js"
+    "tag-challenges": "env-cmd --silent node scripts/tag-challenges.js",
+    "tag-member": "env-cmd --silent node scripts/tag-member.js",
+    "copy-member": "env-cmd --silent node scripts/copy-member.js"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +30,7 @@
     "http-status-codes": "^2.1.4",
     "joi": "^17.4.0",
     "lodash": "^4.17.21",
+    "moment": "^2.29.1",
     "tc-core-library-js": "github:appirio-tech/tc-core-library-js#v2.6",
     "winston": "^3.3.3"
   },

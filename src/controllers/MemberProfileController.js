@@ -11,7 +11,7 @@ const logger = require('../common/logger')
   * @param res the response
   */
 async function updateMemberProfile (req, res) {
-  res.send(await service.updateMemberProfile(req.query.challengeId))
+  await service.updateMemberProfile(req.query, res)
 }
 
 /**

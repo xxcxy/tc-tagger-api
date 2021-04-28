@@ -167,6 +167,19 @@ paths:
         
         
         **Authorization:** Update tags is accessible by scopes `write:challenges`, `all:challenges`.
+
+      parameters:
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum: [open, completed]
+        description: Filter challenge by status.
+      - in: query
+        name: stream
+        schema:
+          type: boolean
+        description: If "stream=true", then return response as a stream
       requestBody:
         content:
           application/json:
@@ -187,18 +200,18 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  Challenges Updated:
-                    type: integer
+                type: array
+                items:
+                  type: object
+                  properties:
+                    message:
+                      type: string
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/ServerError"
 
   /v5/tagger/member-profiles:
     get:
@@ -288,12 +301,34 @@ paths:
         
         
         **Authorization:** Update tags is accessible by scopes `write:challenges`, `all:challenges`.
+
       parameters:
       - in: query
         name: challengeId
         schema:
           type: string
           format: uuid
+      - in: query
+        name: memberHandle
+        schema:
+          type: string
+      - in: query
+        name: startDate
+        schema:
+          type: string
+          format: date-time
+        description: Filter by updated date (lower bound of date range)
+      - in: query
+        name: endDate
+        schema:
+          type: string
+          format: date-time
+        description: Filter by updated date (upper bound of date range)
+      - in: query
+        name: stream
+        schema:
+          type: boolean
+        description: If "stream=true", then return response as a stream
       tags:
       - Member profiles
       security:
@@ -304,18 +339,18 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  Members Updated:
-                    type: integer
+                type: array
+                items:
+                  type: object
+                  properties:
+                    message:
+                      type: string
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
-        "500":
-          $ref: "#/components/responses/ServerError"
   /v5/tagger/member-skills:
     get:
       operationId: v5_member_tag_profile_get_processed_member_profile_retrieve

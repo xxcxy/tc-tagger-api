@@ -46,5 +46,7 @@ module.exports = {
   TAGGING_API_BASE_URL: process.env.TAGGING_API_BASE_URL || 'https://api.topcoder-dev.com',
 
   M2M_AUDIT_USER_ID: process.env.M2M_AUDIT_USER_ID || -1,
-  M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'TopcoderService'
+  M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'TopcoderService',
+  SUBMITTER_RESOURCE_ROLE_ID: process.env.SUBMITTER_RESOURCE_ROLE_ID || '732339e7-8e30-49d7-9198-cccf9451e221',
+  TASK_TYPE_ID: process.env.TASK_TYPE_ID || 'ecd58c69-238f-43a4-a4bb-d172719b9f31'
 }

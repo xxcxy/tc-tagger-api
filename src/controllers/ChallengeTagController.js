@@ -11,7 +11,7 @@ const logger = require('../common/logger')
  * @param res the response
  */
 async function updateChallengeTag (req, res) {
-  res.send(await service.updateChallengeTag(req.body))
+  await service.updateChallengeTag(req.body, req.query, res)
 }
 
 /**
@@ -26,31 +26,7 @@ async function searchChallengeTag (req, res) {
   res.send(result.result)
 }
 
-function sendAndSleep (response, secondsLeft) {
-  if (secondsLeft <= 0) {
-    logger.debug('stream: ended')
-    response.end()
-  } else {
-    logger.debug(`stream: "seconds left": ${secondsLeft} \n`)
-    response.write(`{"seconds left": ${secondsLeft} }\n`)
-    setTimeout(function () {
-      sendAndSleep(response, secondsLeft - 1)
-    }, 1000)
-  }
-};
-
-async function streamDemo (req, res) {
-  // when using text/plain it did not stream
-  // without charset=utf-8, it only worked in Chrome, not Firefox
-  // res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.setHeader('Content-Type', 'application/json')
-  res.setHeader('Transfer-Encoding', 'chunked')
-
-  sendAndSleep(res, parseInt(req.query.duration || 5) * 60)
-}
-
 module.exports = {
   updateChallengeTag,
-  searchChallengeTag,
-  streamDemo
+  searchChallengeTag
 }
