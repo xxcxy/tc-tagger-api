@@ -196,14 +196,14 @@ async function updateMemberProfileByDatesOrChallengesIds (criteria, monitor) {
   // save skills history
   saved = 0
   const memberCount = _.size(memberMap)
-  for (const bit of _.chunk(_.values(memberMap), BATCH_PUT_MAX_COUNT)) {
+  for (const bit of _.chunk(_.values(memberMap), 1)) {
     try {
       await models.MemberSkillsHistory.batchPut(bit)
       saved += bit.length
       monitor(`Saved ${saved} of ${memberCount} skills history`)
     } catch (e) {
       logger.logFullError(e, { signature: 'updateSkillsHistory' })
-      monitor(`An error(${e.message}) occurred when saving skills history`)
+      monitor(`An error(${e.message}) occurred when saving skills history for users: ${_.map(bit, 'handle').join(', ')}`)
     }
   }
   monitor(`summary: user process[${memberCount}], processed successfully[${saved}], processed failed[${memberCount - saved}], time spent[${moment.duration(Date.now() - metrics.startTime).humanize({ ss: 1 })}]`, true)
