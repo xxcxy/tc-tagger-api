@@ -9,7 +9,6 @@ const moment = require('moment')
 const helper = require('../common/helper')
 const logger = require('../common/logger')
 const models = require('../models')
-const { BATCH_PUT_MAX_COUNT } = require('../../app-constants')
 
 /**
  * Update or create member skills history
@@ -135,11 +134,24 @@ async function updateMemberProfileByHandle (handle, monitor) {
           if (result) {
             taggingServiceChecked = result.taggingServiceChecked
             // save tags with ALL winners
-            await new models.ChallengeDetail(_.assign(result.challengeWithTags, _.pick(challenge, 'winners'))).save()
+            try {
+              monitor(`Saving tags for challenge ${challenge.id}`)
+              await new models.ChallengeDetail(_.assign(result.challengeWithTags, _.pick(challenge, 'winners'))).save()
+            } catch (e) {
+              logger.logFullError(e, { signature: 'updateChallengeTag' })
+              monitor(`An error(${e.message}) occurred when saving challenge tags for ${JSON.stringify(result.challengeWithTags)}`)
+            }
           }
           if (memberMap[handle]) {
             // save memberProfile only for one winner
-            await new models.MemberSkillsHistory(memberMap[handle]).save()
+            monitor(`Saving skills history for users: ${handle}`)
+            try {
+              await new models.MemberSkillsHistory(memberMap[handle]).save()
+              monitor(`Saved ${handle} skills history`)
+            } catch (e) {
+              logger.logFullError(e, { signature: 'updateSkillsHistory' })
+              monitor(`An error(${e.message}) occurred when saving skills history for users: ${handle}`)
+            }
           }
         } else {
           monitor(`Challenge is skipped as user haven't won it: ${challengeId}`)
@@ -179,14 +191,15 @@ async function updateMemberProfileByDatesOrChallengesIds (criteria, monitor) {
   }
   // save all new challengeTags
   let saved = 0
-  for (const bit of _.chunk(updateChallengeTags, BATCH_PUT_MAX_COUNT)) {
+  for (const bit of _.chunk(updateChallengeTags, 1)) {
+    monitor(`Saving tags for challenge ${bit[0].id}`)
     try {
       await models.ChallengeDetail.batchPut(bit)
       saved += bit.length
       monitor(`Saved ${saved} of ${updateChallengeTags.length} challenge`)
     } catch (e) {
       logger.logFullError(e, { signature: 'updateChallengeTag' })
-      monitor(`An error(${e.message}) occurred when saving challenge tags`)
+      monitor(`An error(${e.message}) occurred when saving challenge tags for ${JSON.stringify(bit[0])}`)
     }
   }
   if (!criteria.challengeId && !criteria.startDate && updateChallengeTags.length > 0 && metrics.fail === 0 && saved === updateChallengeTags.length) {
@@ -197,6 +210,7 @@ async function updateMemberProfileByDatesOrChallengesIds (criteria, monitor) {
   saved = 0
   const memberCount = _.size(memberMap)
   for (const bit of _.chunk(_.values(memberMap), 1)) {
+    monitor(`Saving skills history for users: ${_.map(bit, 'handle').join(', ')}`)
     try {
       await models.MemberSkillsHistory.batchPut(bit)
       saved += bit.length
