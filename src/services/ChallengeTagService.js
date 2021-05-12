@@ -108,45 +108,15 @@ updateChallengeTag.schema = Joi.object().keys({
  */
 async function searchChallengeTag (criteria) {
   const { page, perPage } = criteria
-  if (!criteria.challengeId && criteria.status === 'open') {
-    if (!criteria.tag) {
-      const searchResult = await helper.getSpecificPageChallenge(criteria)
-      const result = await helper.assignOutputTag(searchResult.data)
-      return {
-        total: searchResult.total,
-        page,
-        perPage,
-        result
-      }
-    } else {
-      const searchResult = await helper.getAllPageChallenge(_.assign(
-        _.pick(criteria, ['track', 'tracks', 'type', 'types', 'search', 'name', 'description']),
-        // challenges open for registration
-        {
-          status: 'Active',
-          currentPhaseName: 'Registration'
-        }
-      ))
-      const result = await helper.assignOutputTag(searchResult)
-      const afterFilter = _.filter(result, c => criteria.tag.split(',').every(t => _.includes(c.outputTags, t)))
-      return {
-        total: afterFilter.length,
-        page,
-        perPage,
-        result: _.slice(afterFilter, (page - 1) * perPage, page * perPage)
-      }
-    }
-  } else {
-    let result = await helper.getChallengeFromDb(criteria.challengeId)
-    if (criteria.tag) {
-      result = _.filter(result, c => criteria.tag.split(',').every(t => _.includes(c.outputTags, t)))
-    }
-    return {
-      total: result.length,
-      page,
-      perPage,
-      result: _.slice(result, (page - 1) * perPage, page * perPage)
-    }
+  let result = await helper.getChallengeFromDb(criteria.challengeId)
+  if (criteria.tag) {
+    result = _.filter(result, c => criteria.tag.split(',').every(t => _.includes(c.outputTags, t)))
+  }
+  return {
+    total: result.length,
+    page,
+    perPage,
+    result: _.slice(result, (page - 1) * perPage, page * perPage)
   }
 }
 
@@ -155,15 +125,7 @@ searchChallengeTag.schema = Joi.object().keys({
     page: Joi.page(),
     perPage: Joi.perPage(),
     challengeId: Joi.string(),
-    status: Joi.string().valid('open'),
-    tag: Joi.string(),
-    type: Joi.string(),
-    track: Joi.string(),
-    name: Joi.string(),
-    search: Joi.string(),
-    description: Joi.string(),
-    types: Joi.array().items(Joi.string()),
-    tracks: Joi.array().items(Joi.string())
+    tag: Joi.string()
   }).required()
 }).required()
 

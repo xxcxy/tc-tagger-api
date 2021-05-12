@@ -70,50 +70,7 @@ paths:
         schema:
           type: integer
       - in: query
-        name: status
-        schema:
-          type: string
-      - in: query
         name: tag
-        schema:
-          type: string
-      - in: query
-        name: type
-        description: Filter challenge (when status is open and challenge_id is null) by type abbreviation, exact match. If provided, the typeId will be ignored
-        schema:
-          type: string
-      - name: types
-        in: query
-        description: Filter challenge (when status is open and challenge_id is null) by multiple type abbreviation, exact match. If types is provided, typeIds will be ignored
-        schema:
-          type: array
-          items:
-            type: string
-      - name: track
-        in: query
-        description: Filter challenge (when status is open and challenge_id is null) by track, case-insensitive, partial matches are allowed.
-        schema:
-          type: string
-      - name: tracks
-        in: query
-        description: Filter challenge (when status is open and challenge_id is null) by multiple track abbreviation, exact match. If types is provided, trackIds will beignored
-        schema:
-          type: array
-          items:
-            type: string
-      - name: search
-        in: query
-        description: Filter challenge (when status is open and challenge_id is null) by name, description and tags fields, case-insensitive, partial matches are allowed.
-        schema:
-          type: string
-      - name: name
-        in: query
-        description: Filter challenge (when status is open and challenge_id is null) by name, case-insensitive, partial matches are allowed.
-        schema:
-          type: string
-      - name: description
-        in: query
-        description: Filter challenge (when status is open and challenge_id is null) by description, case-insensitive, partial matches are allowed.
         schema:
           type: string
       tags:

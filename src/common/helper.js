@@ -167,29 +167,6 @@ function adaptChallenge (data) {
 }
 
 /**
- * Get specific page of challenge from tc challenge service
- * @param {Object} criteria The query params
- * @returns {Object} challenge array with total count
- */
-async function getSpecificPageChallenge (criteria) {
-  const params = {
-    ..._.pick(criteria, ['page', 'perPage', 'track', 'tracks', 'type', 'types', 'search', 'name', 'description']),
-    status: 'Active',
-    currentPhaseName: 'Registration',
-    sortBy: 'updated',
-    sortOrder: 'asc',
-    isLightweight: 'false'
-  }
-  try {
-    const res = await axios.get(`${config.CHALLENGE_BASE_URL}/v5/challenges`, { params })
-    const data = _.map(res.data, d => adaptChallenge(d))
-    return { total: parseInt(res.headers['x-total']), data }
-  } catch (e) {
-    logger.error('TopCoder API unavailable!')
-  }
-}
-
-/**
  * Get all matched challenge from tc challenge service
  * @param {Object} criteria The query params
  * @returns {Object} challenge array with total count
@@ -318,21 +295,6 @@ async function checkTaggingService () {
     logger.error('Tagging Server Unavailable!')
     return false
   }
-}
-
-/**
- * Get the tags from db and set to challenge
- * @param {Array} challengeList The array of challenge
- * @returns {Array} The array of challenge with outputTags
- */
-async function assignOutputTag (challengeList) {
-  const result = []
-  for (const ids of _.chunk(_.map(challengeList, 'id'), BATCH_GET_MAX_COUNT)) {
-    const fromDb = await models.ChallengeDetail.batchGet(ids)
-    result.push(..._.map(fromDb, i => [i.id, _.map(i.outputTags, 'tag')]))
-  }
-  const tags = _.fromPairs(result)
-  return _.map(challengeList, c => ({ ..._.omit(c, 'lastRefreshedAt', 'description'), outputTags: _.get(tags, c.id, []) }))
 }
 
 /**
@@ -525,12 +487,10 @@ module.exports = {
   checkIfExists,
   setResHeaders,
   getChallenge,
-  getSpecificPageChallenge,
   getAllPageChallenge,
   getChallengeFromDb,
   getChallengeTag,
   checkTaggingService,
-  assignOutputTag,
   getMemberSkillsHistory,
   filterMemberSkillHistory,
   generateMonitor,
