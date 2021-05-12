@@ -8,7 +8,6 @@ const moment = require('moment')
 const helper = require('../common/helper')
 const logger = require('../common/logger')
 const models = require('../models')
-const { BATCH_PUT_MAX_COUNT } = require('../../app-constants')
 
 /**
  * Get challenge list
@@ -66,7 +65,8 @@ async function updateChallengeTag (data, criteria, res) {
     }
     monitor('Saving challenge Tags...')
     let saved = 0
-    for (const bit of _.chunk(challengeTagList, BATCH_PUT_MAX_COUNT)) {
+    for (const bit of _.chunk(challengeTagList, 1)) {
+      monitor(`Saving tags for challenge ${bit[0].id}`)
       try {
         await models.ChallengeDetail.batchPut(bit)
         saved += bit.length
@@ -75,7 +75,7 @@ async function updateChallengeTag (data, criteria, res) {
         metrics.success = metrics.success - bit.length
         metrics.fail = metrics.fail + bit.length
         logger.logFullError(e, { signature: 'updateChallengeTag' })
-        monitor(`An error(${e.message}) occurred when saving challenge tags`)
+        monitor(`An error(${e.message}) occurred when saving challenge tags for ${JSON.stringify(bit[0])}`)
       }
     }
     if (criteria.status === 'completed' && challengeTagList.length > 0 && metrics.fail === 0) {
