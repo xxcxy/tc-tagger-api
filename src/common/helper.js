@@ -158,8 +158,8 @@ async function getChallenge (challengeId) {
  */
 function adaptChallenge (data) {
   const challenge = _.pick(data, ['id', 'name', 'track', 'description', 'tags'])
-  challenge.startDate = new Date(data.startDate)
-  challenge.endDate = new Date(data.endDate)
+  challenge.startDate = data.startDate ? new Date(data.startDate) : undefined
+  challenge.endDate = data.endDate ? new Date(data.endDate) : undefined
   challenge.winners = _.map(data.winners, w => ({ handle: w.handle, placement: _.toString(w.placement), userId: _.toString(w.userId) }))
   challenge.lastRefreshedAt = new Date()
   challenge.appealsEndDate = getAppealsEndDate(data)
@@ -232,11 +232,11 @@ async function getAllPageChallenge (criteria) {
  * @returns {Date} the appealsEndDate
  */
 function getAppealsEndDate (challenge) {
-  const maxDate = _.max(_.map(challenge.phases, p => new Date(p.actualEndDate)))
+  const maxDate = _.max(_.map(_.filter(challenge.phases, 'actualEndDate'), p => new Date(p.actualEndDate)))
   if (maxDate) {
     return maxDate
   }
-  return new Date(challenge.updated)
+  return challenge.updated ? new Date(challenge.updated) : new Date()
 }
 
 /**
