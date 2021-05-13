@@ -17,24 +17,23 @@ const models = require('../models')
  * @returns an array of challenge ids
  */
 async function getChallengeListToUpdate (challengeIdList, status, monitor) {
-  const challengeList = []
   if (status === 'open') {
     monitor('Fetching all active challenges from topcoder API...')
     // get challenges open for registration
-    challengeList.push(...await helper.getAllPageChallenge({ status: 'Active', currentPhaseName: 'Registration' }))
+    return helper.getAllPageChallenge({ status: 'Active', currentPhaseName: 'Registration' })
   } else if (status === 'completed') {
-    challengeList.push(...await helper.findCompletedChallenge(monitor))
+    return helper.findCompletedChallenge(monitor)
   } else if (challengeIdList) {
     monitor(`Fetching ${JSON.stringify(challengeIdList)} challenges from topcoder API...`)
+    const challengeList = []
     for (const challengeId of challengeIdList) {
       const challenge = await helper.getChallenge(challengeId)
       if (challenge) {
         challengeList.push(challenge)
       }
     }
+    return [{ total: challengeList.length, data: challengeList }]
   }
-  monitor(`Fetched ${challengeList.length} challenges from topcoder API `)
-  return challengeList
 }
 
 /**
@@ -45,45 +44,55 @@ async function getChallengeListToUpdate (challengeIdList, status, monitor) {
  */
 async function updateChallengeTag (data, criteria, res) {
   const monitor = helper.generateMonitor(res, criteria.stream)
-  const challengeTagList = []
-  const challengeList = await getChallengeListToUpdate(data.challengeId, criteria.status, monitor)
-  const metrics = helper.createMetrics(challengeList.length)
+  let metrics
+  let challengeDetailSaved = 0
+  let lastRefreshedAt
   if (await helper.checkTaggingService()) {
-    monitor('Extracting Tags for challenges...')
-    for (const challenge of challengeList) {
-      monitor(`Processing challenge ${challenge.id}...`)
-      try {
-        const challengeWithTags = await helper.getChallengeTag(challenge)
-        helper.updateMetrics(metrics, challengeWithTags.outputTags.length)
-        challengeTagList.push(challengeWithTags)
-        monitor(`Extracted ${JSON.stringify(challengeWithTags.outputTags)} for challenge ${challenge.id}`)
-      } catch (e) {
-        helper.updateMetrics(metrics, -1)
-        monitor(`Process challenge ${challenge.id} failed by ${e.message}`)
+    const challengeGenerator = await getChallengeListToUpdate(data.challengeId, criteria.status, monitor)
+    for await (const challengePage of challengeGenerator) {
+      if (!challengePage) {
+        continue
       }
-      monitor(`Processed ${metrics.doneCount} of ${metrics.all} challenges, processed percentage ${Math.round(metrics.doneCount * 100 / metrics.all, 0)}%, average time per record ${moment.duration(metrics.avgTimePerDocument).humanize({ ss: 1 })}, time spent: ${moment.duration(metrics.timeSpent).humanize({ ss: 1 })}, time left: ${moment.duration(metrics.timeLeft).humanize({ ss: 1 })}`)
-    }
-    monitor('Saving challenge Tags...')
-    let saved = 0
-    for (const bit of _.chunk(challengeTagList, 1)) {
-      monitor(`Saving tags for challenge ${bit[0].id}`)
-      try {
-        await models.ChallengeDetail.batchPut(bit)
-        saved += bit.length
-        monitor(`Saved ${saved} of ${challengeTagList.length} challenge`)
-      } catch (e) {
-        metrics.success = metrics.success - bit.length
-        metrics.fail = metrics.fail + bit.length
-        logger.logFullError(e, { signature: 'updateChallengeTag' })
-        monitor(`An error(${e.message}) occurred when saving challenge tags for ${JSON.stringify(bit[0])}`)
+      if (!metrics) {
+        metrics = helper.createMetrics(challengePage.total)
+      }
+      const challengeList = challengePage.data
+      monitor('Extracting Tags for challenges...')
+      const challengeTagList = []
+      for (const challenge of challengeList) {
+        monitor(`Processing challenge ${challenge.id}...`)
+        try {
+          const challengeWithTags = await helper.getChallengeTag(challenge)
+          helper.updateMetrics(metrics, challengeWithTags.outputTags.length)
+          challengeTagList.push(challengeWithTags)
+          monitor(`Extracted ${JSON.stringify(challengeWithTags.outputTags)} for challenge ${challenge.id}`)
+        } catch (e) {
+          helper.updateMetrics(metrics, -1)
+          monitor(`Process challenge ${challenge.id} failed by ${e.message}`)
+        }
+        monitor(`Processed ${metrics.doneCount} of ${metrics.all} challenges, processed percentage ${Math.round(metrics.doneCount * 100 / metrics.all, 0)}%, average time per record ${moment.duration(metrics.avgTimePerDocument).humanize({ ss: 1 })}, time spent: ${moment.duration(metrics.timeSpent).humanize({ ss: 1 })}, time left: ${moment.duration(metrics.timeLeft).humanize({ ss: 1 })}`)
+      }
+      lastRefreshedAt = _.max([lastRefreshedAt, ..._.map(challengeTagList, 'appealsEndDate')])
+      monitor('Saving challenge Tags...')
+      for (const bit of _.chunk(challengeTagList, 1)) {
+        monitor(`Saving tags for challenge ${bit[0].id}`)
+        try {
+          await models.ChallengeDetail.batchPut(bit)
+          challengeDetailSaved += bit.length
+          monitor(`Saved ${challengeDetailSaved} challenge details`)
+        } catch (e) {
+          metrics.success = metrics.success - bit.length
+          metrics.fail = metrics.fail + bit.length
+          logger.logFullError(e, { signature: 'updateChallengeTag' })
+          monitor(`An error(${e.message}) occurred when saving challenge tags for ${JSON.stringify(bit[0])}`)
+        }
       }
     }
-    if (criteria.status === 'completed' && challengeTagList.length > 0 && metrics.fail === 0) {
-      const lastRefreshedAt = _.max(_.map(challengeTagList, 'appealsEndDate'))
+    if (criteria.status === 'completed' && challengeDetailSaved > 0 && metrics.fail === 0) {
       await new models.ChallengeDetail({ id: '1', lastRefreshedAt }).save()
     }
   }
-  monitor(`summary: challenge found[${metrics.all}], processed successfully[${metrics.success}], [${metrics.hasTags}] of challenges have tags, processed failed[${metrics.fail}], time spent[${moment.duration(Date.now() - metrics.startTime).humanize({ ss: 1 })}]`, true)
+  monitor(`summary: challenge found[${_.get(metrics, 'all', 0)}], processed successfully[${_.get(metrics, 'success', 0)}], [${_.get(metrics, 'hasTags', 0)}] of challenges have tags, processed failed[${_.get(metrics, 'fail', 0)}], time spent[${moment.duration(Date.now() - _.get(metrics, 'startTime', Date.now())).humanize({ ss: 1 })}]`, true)
 }
 
 updateChallengeTag.schema = Joi.object().keys({

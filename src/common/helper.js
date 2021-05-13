@@ -192,14 +192,13 @@ async function getSpecificPageChallenge (criteria) {
 /**
  * Get all matched challenge from tc challenge service
  * @param {Object} criteria The query params
- * @returns {Object} challenge array with total count
+ * @returns {Object} generator of one page challenge and total number
  */
-async function getAllPageChallenge (criteria) {
+async function * getAllPageChallenge (criteria) {
   const token = await getM2MToken()
-  const result = []
   const params = _.assign({
     page: 1,
-    perPage: '100',
+    perPage: '2',
     sortBy: 'updated',
     sortOrder: 'asc',
     isLightweight: 'false'
@@ -212,7 +211,7 @@ async function getAllPageChallenge (criteria) {
           Authorization: `Bearer ${token}`
         }
       })
-      result.push(..._.map(res.data, d => adaptChallenge(d)))
+      yield { total: parseInt(res.headers['x-total']), data: _.map(res.data, d => adaptChallenge(d)) }
       if (parseInt(res.headers['x-total-pages']) > params.page) {
         params.page = params.page + 1
       } else {
@@ -223,7 +222,6 @@ async function getAllPageChallenge (criteria) {
       break
     }
   }
-  return result
 }
 
 /**
@@ -432,7 +430,7 @@ function generateMonitor (res, stream) {
 /**
  * Find completed challenge list
  * @param {Function} monitor the process monitor
- * @returns an array of challenge
+ * @returns {Object} generator of one page challenge and total number
  */
 async function findCompletedChallenge (monitor) {
   const criteria = { status: 'Completed' }
