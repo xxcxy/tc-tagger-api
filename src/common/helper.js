@@ -198,7 +198,7 @@ async function * getAllPageChallenge (criteria) {
   const token = await getM2MToken()
   const params = _.assign({
     page: 1,
-    perPage: '2',
+    perPage: '100',
     sortBy: 'updated',
     sortOrder: 'asc',
     isLightweight: 'false'
