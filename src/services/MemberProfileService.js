@@ -59,7 +59,7 @@ async function getChallengeListToUpdate (query, monitor) {
     monitor(`Fetching challenge ${query.challengeId} from topcoder API...`)
     const challenge = await helper.getChallenge(query.challengeId)
     if (challenge) {
-      return [{ total: 1, data: [challenge] }]
+      return [{ total: 1, data: challenge }]
     }
   } else if (query.startDate) {
     const criteria = { status: 'Completed', updatedDateStart: query.startDate, updatedDateEnd: query.endDate, 'types[]': ['CH', 'F2F'] }
@@ -179,53 +179,46 @@ async function updateMemberProfileByDatesOrChallengesIds (criteria, monitor) {
   let updateLastRefreshedAt = !criteria.challengeId && !criteria.startDate
   let lastRefreshedAt
   let metrics
-  // collect and update skills history
-  for await (const pageChallenge of challengeListGenerator) {
-    if (!pageChallenge) {
+  for await (const challengeWithTotal of challengeListGenerator) {
+    if (!challengeWithTotal) {
       continue
     }
     if (!metrics) {
-      metrics = helper.createMetrics(pageChallenge.total)
+      metrics = helper.createMetrics(challengeWithTotal.total)
     }
     const memberMap = {}
-    const updateChallengeTags = []
-    const challengeList = pageChallenge.data
-    logger.debug(`Challenge details ${JSON.stringify(challengeList)}`)
-    for (const challenge of challengeList) {
-      const result = await updateSingleChallenge(challenge, memberMap, metrics, monitor, taggingServiceChecked)
-      if (result) {
-        taggingServiceChecked = result.taggingServiceChecked
-        updateChallengeTags.push(result.challengeWithTags)
-      }
-      monitor(`Processed ${metrics.doneCount} of ${metrics.all} challenges, processed percentage ${Math.round(metrics.doneCount * 100 / metrics.all, 0)}%, average time per record ${moment.duration(metrics.avgTimePerDocument).humanize({ ss: 1 })}, time spent: ${moment.duration(metrics.timeSpent).humanize({ ss: 1 })}, time left: ${moment.duration(metrics.timeLeft).humanize({ ss: 1 })}`)
-    }
-    lastRefreshedAt = _.max([lastRefreshedAt, ..._.map(updateChallengeTags, 'appealsEndDate')])
-    // save all new challengeTags
-    for (const bit of _.chunk(updateChallengeTags, 1)) {
-      monitor(`Saving tags for challenge ${bit[0].id}`)
+    logger.debug(`Challenge details ${JSON.stringify(challengeWithTotal)}`)
+    const challenge = challengeWithTotal.data
+    const result = await updateSingleChallenge(challenge, memberMap, metrics, monitor, taggingServiceChecked)
+    if (result) {
+      taggingServiceChecked = result.taggingServiceChecked
+      // save new challengeTags
+      monitor(`Saving tags for challenge ${result.challengeWithTags.id}`)
       try {
-        await models.ChallengeDetail.batchPut(bit)
-        tagChallengeSaved += bit.length
+        await new models.ChallengeDetail(result.challengeWithTags).save()
+        tagChallengeSaved += 1
         monitor(`Saved ${tagChallengeSaved} of challenge tags`)
+        lastRefreshedAt = _.max([lastRefreshedAt, result.challengeWithTags.appealsEndDate])
       } catch (e) {
         logger.logFullError(e, { signature: 'updateChallengeTag' })
         updateLastRefreshedAt = false
-        monitor(`An error(${e.message}) occurred when saving challenge tags for ${JSON.stringify(bit[0])}`)
+        monitor(`An error(${e.message}) occurred when saving challenge tags for ${JSON.stringify(result.challengeWithTags)}`)
       }
     }
     // save skills history
     memberUpdated += _.size(memberMap)
-    for (const bit of _.chunk(_.values(memberMap), 1)) {
-      monitor(`Saving skills history for users: ${_.map(bit, 'handle').join(', ')}`)
+    for (const bit of _.values(memberMap)) {
+      monitor(`Saving skills history for users: ${bit.handle}`)
       try {
-        await models.MemberSkillsHistory.batchPut(bit)
-        userSaved += bit.length
+        await new models.MemberSkillsHistory(bit).save()
+        userSaved += 1
         monitor(`Saved ${userSaved} member skills history`)
       } catch (e) {
         logger.logFullError(e, { signature: 'updateSkillsHistory' })
-        monitor(`An error(${e.message}) occurred when saving skills history for users: ${_.map(bit, 'handle').join(', ')}`)
+        monitor(`An error(${e.message}) occurred when saving skills history for users: ${bit.handle}`)
       }
     }
+    monitor(`Processed ${metrics.doneCount} of ${metrics.all} challenges, processed percentage ${Math.round(metrics.doneCount * 100 / metrics.all, 0)}%, average time per record ${moment.duration(metrics.avgTimePerDocument).humanize({ ss: 1 })}, time spent: ${moment.duration(metrics.timeSpent).humanize({ ss: 1 })}, time left: ${moment.duration(metrics.timeLeft).humanize({ ss: 1 })}`)
   }
   if (updateLastRefreshedAt && !_.get(metrics, 'fail') && lastRefreshedAt) {
     await new models.ChallengeDetail({ id: '1', lastRefreshedAt }).save()

@@ -32,7 +32,7 @@ async function getChallengeListToUpdate (challengeIdList, status, monitor) {
         challengeList.push(challenge)
       }
     }
-    return [{ total: challengeList.length, data: challengeList }]
+    return _.map(challengeList, data => ({ total: challengeList.length, data }))
   }
 }
 
@@ -49,45 +49,35 @@ async function updateChallengeTag (data, criteria, res) {
   let lastRefreshedAt
   if (await helper.checkTaggingService()) {
     const challengeGenerator = await getChallengeListToUpdate(data.challengeId, criteria.status, monitor)
-    for await (const challengePage of challengeGenerator) {
-      if (!challengePage) {
+    for await (const challengeWithTotal of challengeGenerator) {
+      if (!challengeWithTotal) {
         continue
       }
       if (!metrics) {
-        metrics = helper.createMetrics(challengePage.total)
+        metrics = helper.createMetrics(challengeWithTotal.total)
       }
-      const challengeList = challengePage.data
+      const challenge = challengeWithTotal.data
+      monitor(`Processing challenge ${challenge.id}...`)
       monitor('Extracting Tags for challenges...')
-      const challengeTagList = []
-      for (const challenge of challengeList) {
-        monitor(`Processing challenge ${challenge.id}...`)
-        try {
-          const challengeWithTags = await helper.getChallengeTag(challenge)
-          helper.updateMetrics(metrics, challengeWithTags.outputTags.length)
-          challengeTagList.push(challengeWithTags)
-          monitor(`Extracted ${JSON.stringify(challengeWithTags.outputTags)} for challenge ${challenge.id}`)
-        } catch (e) {
-          helper.updateMetrics(metrics, -1)
-          monitor(`Process challenge ${challenge.id} failed by ${e.message}`)
-        }
-        monitor(`Processed ${metrics.doneCount} of ${metrics.all} challenges, processed percentage ${Math.round(metrics.doneCount * 100 / metrics.all, 0)}%, average time per record ${moment.duration(metrics.avgTimePerDocument).humanize({ ss: 1 })}, time spent: ${moment.duration(metrics.timeSpent).humanize({ ss: 1 })}, time left: ${moment.duration(metrics.timeLeft).humanize({ ss: 1 })}`)
+      try {
+        const challengeWithTags = await helper.getChallengeTag(challenge)
+        helper.updateMetrics(metrics, challengeWithTags.outputTags.length)
+        monitor(`Extracted ${JSON.stringify(challengeWithTags.outputTags)} for challenge ${challenge.id}`)
+
+        monitor(`Saving tags for challenge ${challengeWithTags.id}`)
+        await new models.ChallengeDetail(challengeWithTags).save()
+        challengeDetailSaved += 1
+        monitor(`Saved ${challengeDetailSaved} challenge details`)
+
+        lastRefreshedAt = _.max([lastRefreshedAt, challengeWithTags.appealsEndDate])
+      } catch (e) {
+        logger.logFullError(e, { signature: 'updateChallengeTag' })
+        helper.updateMetrics(metrics, -1)
+        monitor(`An error(${e.message}) occurred when Processing challenge tags for ${JSON.stringify(challenge)}`)
       }
-      lastRefreshedAt = _.max([lastRefreshedAt, ..._.map(challengeTagList, 'appealsEndDate')])
-      monitor('Saving challenge Tags...')
-      for (const bit of _.chunk(challengeTagList, 1)) {
-        monitor(`Saving tags for challenge ${bit[0].id}`)
-        try {
-          await models.ChallengeDetail.batchPut(bit)
-          challengeDetailSaved += bit.length
-          monitor(`Saved ${challengeDetailSaved} challenge details`)
-        } catch (e) {
-          metrics.success = metrics.success - bit.length
-          metrics.fail = metrics.fail + bit.length
-          logger.logFullError(e, { signature: 'updateChallengeTag' })
-          monitor(`An error(${e.message}) occurred when saving challenge tags for ${JSON.stringify(bit[0])}`)
-        }
-      }
+      monitor(`Processed ${metrics.doneCount} of ${metrics.all} challenges, processed percentage ${Math.round(metrics.doneCount * 100 / metrics.all, 0)}%, average time per record ${moment.duration(metrics.avgTimePerDocument).humanize({ ss: 1 })}, time spent: ${moment.duration(metrics.timeSpent).humanize({ ss: 1 })}, time left: ${moment.duration(metrics.timeLeft).humanize({ ss: 1 })}`)
     }
+
     if (criteria.status === 'completed' && challengeDetailSaved > 0 && metrics.fail === 0) {
       await new models.ChallengeDetail({ id: '1', lastRefreshedAt }).save()
     }

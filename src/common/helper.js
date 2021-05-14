@@ -211,7 +211,10 @@ async function * getAllPageChallenge (criteria) {
           Authorization: `Bearer ${token}`
         }
       })
-      yield { total: parseInt(res.headers['x-total']), data: _.map(res.data, d => adaptChallenge(d)) }
+      const total = parseInt(res.headers['x-total'])
+      for (const challenge of res.data) {
+        yield { total, data: adaptChallenge(challenge) }
+      }
       if (parseInt(res.headers['x-total-pages']) > params.page) {
         params.page = params.page + 1
       } else {
